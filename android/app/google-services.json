@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "766964719432",
+    "project_id": "mlock-f",
+    "storage_bucket": "mlock-f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766964719432:android:702d9544d7ced0d67add7d",
+        "android_client_info": {
+          "package_name": "com.example.mlock_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "766964719432-j6s7k4r7q1c46th2tc88k99bqulp2bd4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mlock_flutter",
+            "certificate_hash": "a1f33e60705e3502c8c4594ffb19b366d6b0d3b4"
+          }
+        },
+        {
+          "client_id": "766964719432-6edglkdi1r1hl51c1egjkb0dodhad83e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDajaW_bAJDdliSssLpq17awwm6muGLJgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "766964719432-6edglkdi1r1hl51c1egjkb0dodhad83e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "766964719432-97c5ai039fahitfki93scmekdeq1ke2q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mlockFlutter"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
