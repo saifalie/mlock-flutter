@@ -26,11 +26,15 @@ class _MapPageState extends State<MapPage> {
   final PageController _pageController = PageController();
   List<LockerStationModel> _lockerStations = [];
   int _selectedIndex = 0;
+  BitmapDescriptor? _lockerMarkerIcon; // Store the custom icon
   //-----------------------------
 
   @override
   void initState() {
     super.initState();
+
+    markerImageLoader();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PermissionsBloc>().add(CheckPermissionsEvent());
 
@@ -44,6 +48,26 @@ class _MapPageState extends State<MapPage> {
       //-------------------------
     });
   }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  // ------------------marker custom icon
+  void markerImageLoader() {
+    BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(48, 48), devicePixelRatio: 0.5),
+      'assets/images/lockers.png',
+    ).then((icon) {
+      setState(() {
+        _lockerMarkerIcon = icon;
+      });
+    });
+  }
+  //---------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +116,11 @@ class _MapPageState extends State<MapPage> {
                 zoom: 2,
               ),
               markers: _markers,
+              zoomControlsEnabled: false,
               circles: _circles,
               myLocationEnabled: true,
               myLocationButtonEnabled: false,
+              mapToolbarEnabled: false,
               onMapCreated: (controller) {
                 _mapController = controller;
               },
@@ -110,11 +136,11 @@ class _MapPageState extends State<MapPage> {
 
             //----------------new code-------pagebuilder--------------------
             Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
+              bottom: 7,
+              left: 10,
+              right: 10,
               child: Container(
-                height: 150,
+                height: 220,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: PageView.builder(
                   controller: _pageController,
@@ -137,7 +163,7 @@ class _MapPageState extends State<MapPage> {
 
             // My location button
             Positioned(
-              bottom: 16,
+              bottom: 220,
               right: 16,
               child: FloatingActionButton(
                 heroTag: "locationButton",
@@ -195,13 +221,15 @@ class _MapPageState extends State<MapPage> {
           return Marker(
             markerId: MarkerId('station_${station.id}'),
             position: station.location.coordinates,
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueOrange,
-            ),
+            icon:
+                _lockerMarkerIcon ??
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
             infoWindow: InfoWindow(
               title: station.stationName,
               snippet: station.address,
             ),
+            anchor: const Offset(0.5, 0.5),
+            flat: true,
             onTap: () {
               _pageController.animateToPage(
                 index,
@@ -264,7 +292,7 @@ class _MapPageState extends State<MapPage> {
           target: station.location.coordinates,
           zoom: 15,
           bearing: 30,
-          tilt: 45,
+          tilt: 90,
         ),
       ),
     );

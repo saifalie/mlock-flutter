@@ -42,8 +42,6 @@ class LockerStationBloc extends Bloc<LockerStationEvent, LockerStationState> {
         );
 
         if (distance < 100) return;
-
-       
       }
 
       // Update tracking variables
