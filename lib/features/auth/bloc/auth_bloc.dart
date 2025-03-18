@@ -117,11 +117,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           UserModel(
             id: user['_id'],
             name: user['name'],
-            profilePicture: user['profile_picture'],
+            profilePicture: user['profilePicture'],
             email: user['email'],
             // coordinates: user['location']['coordinates'],
           ),
-          tokens['access_token'],
+          tokens['accessToken'],
         ),
       );
     } catch (e) {
@@ -167,8 +167,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             id: userData['_id'],
             email: userData['email'],
             name: userData['name'],
-            currentLocker: userData['current_locker'],
-            profilePicture: userData['profile_picture'],
+            currentLocker: userData['currentLocker'],
+            profilePicture: userData['profilePicture'],
             coordinates: userData['location']['coordinates'],
           ),
 

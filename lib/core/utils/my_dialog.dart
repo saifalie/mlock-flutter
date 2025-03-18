@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mlock_flutter/core/permission/bloc/permissions_bloc.dart';
 import 'package:mlock_flutter/core/utils/logger.dart';
+import 'package:mlock_flutter/features/booking/bloc/booking_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MyDialog {
@@ -65,6 +66,27 @@ class MyDialog {
                   );
                 },
                 child: Text('Request Again'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  static void showSuccessfullPaymentDialog(BuildContext context,BookingState state) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Booking Successful;'),
+            content: Text(
+              'Your locker has been booked successfully .\nBooking ID: ${state.bookingId}',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
               ),
             ],
           ),

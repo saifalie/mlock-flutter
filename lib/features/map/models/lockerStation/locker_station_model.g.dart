@@ -9,7 +9,7 @@ part of 'locker_station_model.dart';
 _LockerStationModel _$LockerStationModelFromJson(Map<String, dynamic> json) =>
     _LockerStationModel(
       id: json['_id'] as String,
-      stationName: json['station_name'] as String,
+      stationName: json['stationName'] as String,
       status: json['status'] as String,
       location: LocationModel.fromJson(
         json['location'] as Map<String, dynamic>,
@@ -34,7 +34,7 @@ _LockerStationModel _$LockerStationModelFromJson(Map<String, dynamic> json) =>
               .map((e) => LockerModel.fromJson(e as Map<String, dynamic>))
               .toList(),
       openingHours:
-          (json['opening_hours'] as List<dynamic>)
+          (json['openingHours'] as List<dynamic>)
               .map(
                 (e) => LockerStationOpeningHoursModel.fromJson(
                   e as Map<String, dynamic>,
@@ -50,7 +50,7 @@ _LockerStationModel _$LockerStationModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$LockerStationModelToJson(_LockerStationModel instance) =>
     <String, dynamic>{
       '_id': instance.id,
-      'station_name': instance.stationName,
+      'stationName': instance.stationName,
       'status': instance.status,
       'location': instance.location,
       'address': instance.address,
@@ -58,7 +58,7 @@ Map<String, dynamic> _$LockerStationModelToJson(_LockerStationModel instance) =>
       'ratings': instance.ratings,
       'reviews': instance.reviews,
       'lockers': instance.lockers,
-      'opening_hours': instance.openingHours,
+      'openingHours': instance.openingHours,
       'users': instance.users,
     };
 
@@ -154,18 +154,18 @@ _LockerStationOpeningHoursModel _$LockerStationOpeningHoursModelFromJson(
   Map<String, dynamic> json,
 ) => _LockerStationOpeningHoursModel(
   day: $enumDecode(_$DaysEnumMap, json['day']),
-  opensAt: json['opens_at'] as String,
-  closesAt: json['closes_at'] as String,
-  isClosed: json['is_closed'] as bool,
+  opensAt: json['opensAt'] as String,
+  closesAt: json['closesAt'] as String,
+  isClosed: json['isClosed'] as bool,
 );
 
 Map<String, dynamic> _$LockerStationOpeningHoursModelToJson(
   _LockerStationOpeningHoursModel instance,
 ) => <String, dynamic>{
   'day': _$DaysEnumMap[instance.day]!,
-  'opens_at': instance.opensAt,
-  'closes_at': instance.closesAt,
-  'is_closed': instance.isClosed,
+  'opensAt': instance.opensAt,
+  'closesAt': instance.closesAt,
+  'isClosed': instance.isClosed,
 };
 
 const _$DaysEnumMap = {

@@ -7,12 +7,12 @@ class SecureStorage {
     required String accessToken,
     required String refreshToken,
   }) async {
-    await _storage.write(key: 'access_token', value: accessToken);
-    await _storage.write(key: 'refresh_token', value: refreshToken);
+    await _storage.write(key: 'accessToken', value: accessToken);
+    await _storage.write(key: 'refreshToken', value: refreshToken);
   }
 
-  static Future<String?> getAccessToken() => _storage.read(key: 'access_token');
+  static Future<String?> getAccessToken() => _storage.read(key: 'accessToken');
   static Future<String?> getRefreshToken() =>
-      _storage.read(key: 'refresh_token');
+      _storage.read(key: 'refreshToken');
   static Future<void> clearTokens() => _storage.deleteAll();
 }

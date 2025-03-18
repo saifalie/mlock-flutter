@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LockerStationModel {
 
-@JsonKey(name: '_id') String get id;@JsonKey(name: 'station_name') String get stationName; String get status; LocationModel get location; String get address; List<ImageModel> get images; List<RatingModel> get ratings; List<ReviewModel> get reviews; List<LockerModel> get lockers;@JsonKey(name: 'opening_hours') List<LockerStationOpeningHoursModel> get openingHours; List<UserModel>? get users;
+@JsonKey(name: '_id') String get id; String get stationName; String get status; LocationModel get location; String get address; List<ImageModel> get images; List<RatingModel> get ratings; List<ReviewModel> get reviews; List<LockerModel> get lockers; List<LockerStationOpeningHoursModel> get openingHours; List<UserModel>? get users;
 /// Create a copy of LockerStationModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $LockerStationModelCopyWith<$Res>  {
   factory $LockerStationModelCopyWith(LockerStationModel value, $Res Function(LockerStationModel) _then) = _$LockerStationModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: '_id') String id,@JsonKey(name: 'station_name') String stationName, String status, LocationModel location, String address, List<ImageModel> images, List<RatingModel> ratings, List<ReviewModel> reviews, List<LockerModel> lockers,@JsonKey(name: 'opening_hours') List<LockerStationOpeningHoursModel> openingHours, List<UserModel>? users
+@JsonKey(name: '_id') String id, String stationName, String status, LocationModel location, String address, List<ImageModel> images, List<RatingModel> ratings, List<ReviewModel> reviews, List<LockerModel> lockers, List<LockerStationOpeningHoursModel> openingHours, List<UserModel>? users
 });
 
 
@@ -99,11 +99,11 @@ $LocationModelCopyWith<$Res> get location {
 @JsonSerializable()
 
 class _LockerStationModel implements LockerStationModel {
-  const _LockerStationModel({@JsonKey(name: '_id') required this.id, @JsonKey(name: 'station_name') required this.stationName, required this.status, required this.location, required this.address, required final  List<ImageModel> images, final  List<RatingModel> ratings = const [], final  List<ReviewModel> reviews = const [], required final  List<LockerModel> lockers, @JsonKey(name: 'opening_hours') required final  List<LockerStationOpeningHoursModel> openingHours, final  List<UserModel>? users}): _images = images,_ratings = ratings,_reviews = reviews,_lockers = lockers,_openingHours = openingHours,_users = users;
+  const _LockerStationModel({@JsonKey(name: '_id') required this.id, required this.stationName, required this.status, required this.location, required this.address, required final  List<ImageModel> images, final  List<RatingModel> ratings = const [], final  List<ReviewModel> reviews = const [], required final  List<LockerModel> lockers, required final  List<LockerStationOpeningHoursModel> openingHours, final  List<UserModel>? users}): _images = images,_ratings = ratings,_reviews = reviews,_lockers = lockers,_openingHours = openingHours,_users = users;
   factory _LockerStationModel.fromJson(Map<String, dynamic> json) => _$LockerStationModelFromJson(json);
 
 @override@JsonKey(name: '_id') final  String id;
-@override@JsonKey(name: 'station_name') final  String stationName;
+@override final  String stationName;
 @override final  String status;
 @override final  LocationModel location;
 @override final  String address;
@@ -136,7 +136,7 @@ class _LockerStationModel implements LockerStationModel {
 }
 
  final  List<LockerStationOpeningHoursModel> _openingHours;
-@override@JsonKey(name: 'opening_hours') List<LockerStationOpeningHoursModel> get openingHours {
+@override List<LockerStationOpeningHoursModel> get openingHours {
   if (_openingHours is EqualUnmodifiableListView) return _openingHours;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_openingHours);
@@ -185,7 +185,7 @@ abstract mixin class _$LockerStationModelCopyWith<$Res> implements $LockerStatio
   factory _$LockerStationModelCopyWith(_LockerStationModel value, $Res Function(_LockerStationModel) _then) = __$LockerStationModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: '_id') String id,@JsonKey(name: 'station_name') String stationName, String status, LocationModel location, String address, List<ImageModel> images, List<RatingModel> ratings, List<ReviewModel> reviews, List<LockerModel> lockers,@JsonKey(name: 'opening_hours') List<LockerStationOpeningHoursModel> openingHours, List<UserModel>? users
+@JsonKey(name: '_id') String id, String stationName, String status, LocationModel location, String address, List<ImageModel> images, List<RatingModel> ratings, List<ReviewModel> reviews, List<LockerModel> lockers, List<LockerStationOpeningHoursModel> openingHours, List<UserModel>? users
 });
 
 
@@ -1005,7 +1005,7 @@ as int,
 /// @nodoc
 mixin _$LockerStationOpeningHoursModel {
 
- Days get day;@JsonKey(name: 'opens_at') String get opensAt;@JsonKey(name: 'closes_at') String get closesAt;@JsonKey(name: 'is_closed') bool get isClosed;
+ Days get day; String get opensAt; String get closesAt; bool get isClosed;
 /// Create a copy of LockerStationOpeningHoursModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1038,7 +1038,7 @@ abstract mixin class $LockerStationOpeningHoursModelCopyWith<$Res>  {
   factory $LockerStationOpeningHoursModelCopyWith(LockerStationOpeningHoursModel value, $Res Function(LockerStationOpeningHoursModel) _then) = _$LockerStationOpeningHoursModelCopyWithImpl;
 @useResult
 $Res call({
- Days day,@JsonKey(name: 'opens_at') String opensAt,@JsonKey(name: 'closes_at') String closesAt,@JsonKey(name: 'is_closed') bool isClosed
+ Days day, String opensAt, String closesAt, bool isClosed
 });
 
 
@@ -1072,13 +1072,13 @@ as bool,
 @JsonSerializable()
 
 class _LockerStationOpeningHoursModel implements LockerStationOpeningHoursModel {
-  const _LockerStationOpeningHoursModel({required this.day, @JsonKey(name: 'opens_at') required this.opensAt, @JsonKey(name: 'closes_at') required this.closesAt, @JsonKey(name: 'is_closed') required this.isClosed});
+  const _LockerStationOpeningHoursModel({required this.day, required this.opensAt, required this.closesAt, required this.isClosed});
   factory _LockerStationOpeningHoursModel.fromJson(Map<String, dynamic> json) => _$LockerStationOpeningHoursModelFromJson(json);
 
 @override final  Days day;
-@override@JsonKey(name: 'opens_at') final  String opensAt;
-@override@JsonKey(name: 'closes_at') final  String closesAt;
-@override@JsonKey(name: 'is_closed') final  bool isClosed;
+@override final  String opensAt;
+@override final  String closesAt;
+@override final  bool isClosed;
 
 /// Create a copy of LockerStationOpeningHoursModel
 /// with the given fields replaced by the non-null parameter values.
@@ -1113,7 +1113,7 @@ abstract mixin class _$LockerStationOpeningHoursModelCopyWith<$Res> implements $
   factory _$LockerStationOpeningHoursModelCopyWith(_LockerStationOpeningHoursModel value, $Res Function(_LockerStationOpeningHoursModel) _then) = __$LockerStationOpeningHoursModelCopyWithImpl;
 @override @useResult
 $Res call({
- Days day,@JsonKey(name: 'opens_at') String opensAt,@JsonKey(name: 'closes_at') String closesAt,@JsonKey(name: 'is_closed') bool isClosed
+ Days day, String opensAt, String closesAt, bool isClosed
 });
 
 

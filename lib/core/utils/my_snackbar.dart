@@ -17,4 +17,17 @@ class MySnackbar {
       ),
     );
   }
+
+  static void showSuccessSnackbar(BuildContext context, String? message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message ?? 'Success'),
+        backgroundColor: Colors.green,
+        action: SnackBarAction(
+          label: 'Ok',
+          onPressed: Navigator.of(context).pop,
+        ),
+      ),
+    );
+  }
 }

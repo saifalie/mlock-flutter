@@ -9,3 +9,8 @@ class LoadLockerStationEvent extends LockerStationEvent {
   final Position position;
   LoadLockerStationEvent(this.position);
 }
+
+class LoadParticularLockerStation extends LockerStationEvent {
+  final String lockerId;
+  LoadParticularLockerStation(this.lockerId);
+}

@@ -17,7 +17,7 @@ class ApiClient {
   void _setupDio() {
     //Base configuration
     _dio.options = BaseOptions(
-      baseUrl: 'http://10.0.2.2:7000/api',
+      baseUrl: 'http://192.168.10.109:7000/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {'Content-Type': 'application/json'},
@@ -69,7 +69,7 @@ class ApiClient {
 
             final response = await refreshDio.post(
               'http://10.0.2.2:7000/api/auth/refresh-token',
-              data: {'refresh_token': refreshToken},
+              data: {'refreshToken': refreshToken},
             );
 
             final data = response.data['data'];
@@ -78,13 +78,13 @@ class ApiClient {
 
             // save new tokens
             await SecureStorage.saveTokens(
-              accessToken: data['access_token'],
-              refreshToken: data['refresh_token'],
+              accessToken: data['accessToken'],
+              refreshToken: data['refreshToken'],
             );
 
             // update request headers with new access token
             error.requestOptions.headers['Authorization'] =
-                'Bearer ${data['access_token']}';
+                'Bearer ${data['accessToken']}';
 
             //repeat the original request
             final retryResponse = await _dio.fetch(error.requestOptions);
@@ -103,6 +103,9 @@ class ApiClient {
               ),
             );
           }
+        } else if (error.response?.statusCode == 404) {
+          await SecureStorage.clearTokens();
+          await _handleAuthFailure();
         }
 
         return handler.next(error);

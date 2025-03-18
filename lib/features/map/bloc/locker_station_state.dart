@@ -4,7 +4,7 @@ enum LockerStationStatus { initial, loading, loaded, error }
 
 @immutable
 class LockerStationState {
-  final List<LockerStationModel>? lockerStations;
+  final List<LockerStation>? lockerStations;
   final String? error;
   final LockerStationStatus status;
 
@@ -19,7 +19,7 @@ class LockerStationState {
   factory LockerStationState.loading() =>
       LockerStationState(status: LockerStationStatus.loaded);
   factory LockerStationState.loaded({
-    required List<LockerStationModel> lockerStations,
+    required List<LockerStation> lockerStations,
   }) => LockerStationState(
     status: LockerStationStatus.loaded,
     lockerStations: lockerStations,

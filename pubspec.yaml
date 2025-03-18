@@ -51,6 +51,10 @@ dependencies:
   geolocator: ^13.0.2
   permission_handler: ^11.4.0
   flutter_polyline_points: ^2.1.0
+  carousel_slider: ^5.0.0
+  cached_network_image: ^3.4.1
+  razorpay_flutter: ^1.4.0
+  flutter_dotenv: ^5.2.1
 
 
 dev_dependencies:
@@ -80,6 +84,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - assets/images/
   # assets:
   #   - images/a_dot_burr.jpeg

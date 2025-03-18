@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mlock_flutter/core/permission/bloc/permissions_bloc.dart';
 import 'package:mlock_flutter/data/location/bloc/location_bloc.dart';
@@ -10,7 +11,15 @@ import 'package:mlock_flutter/data/user/repository/user_repository.dart';
 import 'package:mlock_flutter/features/auth/bloc/auth_bloc.dart';
 import 'package:mlock_flutter/features/auth/pages/splash_screen.dart';
 import 'package:mlock_flutter/features/auth/repositories/auth_repository.dart';
+import 'package:mlock_flutter/features/booking/bloc/booking_bloc.dart';
+import 'package:mlock_flutter/features/booking/repositories/booking_api_service.dart';
+import 'package:mlock_flutter/features/booking/repositories/booking_repository.dart';
+import 'package:mlock_flutter/features/lockerStation/bloc/station_detail_bloc.dart';
+import 'package:mlock_flutter/features/lockerStation/repository/station_detail_api.dart';
+import 'package:mlock_flutter/features/lockerStation/repository/station_detail_repo.dart';
 import 'package:mlock_flutter/features/map/bloc/locker_station_bloc.dart';
+import 'package:mlock_flutter/features/map/repository/map_api_service.dart';
+import 'package:mlock_flutter/features/map/repository/map_repository.dart';
 import 'package:mlock_flutter/firebase_options.dart';
 import 'package:mlock_flutter/services/api/api_initialization.dart';
 import 'package:mlock_flutter/services/api/auth_api_services.dart';
@@ -19,6 +28,9 @@ import 'package:mlock_flutter/services/cache/user_cache_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  //Initialize dotenv
+  await dotenv.load(fileName: '.env');
 
   //Intialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -31,6 +43,9 @@ void main() async {
 
   // 2. Initialize API Services
   final authApiServices = AuthApiServices(apiClient);
+  final mapApiService = MapApiService(apiClient);
+  final stationDetailApi = StationDetailApi(apiClient);
+  final bookingApiService = BookingApiService(apiClient);
 
   // 3. Initialize Cache Services
   final userCacheService = UserCacheService(cacheService);
@@ -41,12 +56,23 @@ void main() async {
     authApiServices: authApiServices,
     userCacheService: userCacheService,
   );
+  final mapRepository = MapRepository(mapApiService: mapApiService);
+  final stationDetailRepo = StationDetailRepo(
+    stationDetailApi: stationDetailApi,
+  );
+  final bookingRepository = BookingRepository(
+    bookingApiService: bookingApiService,
+    razorpayKeyId: dotenv.env['RAZORPAY_KEY_ID']!,
+  );
 
   runApp(
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: authRepository),
         RepositoryProvider.value(value: userRepository),
+        RepositoryProvider.value(value: mapRepository),
+        RepositoryProvider.value(value: stationDetailRepo),
+        RepositoryProvider.value(value: bookingRepository),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -65,7 +91,24 @@ void main() async {
                     UserBloc(userRepository: context.read<UserRepository>()),
           ),
           BlocProvider(create: (context) => LocationBloc()),
-          BlocProvider(create: (context) => LockerStationBloc()),
+          BlocProvider(
+            create:
+                (context) => LockerStationBloc(
+                  mapRepository: context.read<MapRepository>(),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => StationDetailBloc(
+                  stationDetailRepo: context.read<StationDetailRepo>(),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => BookingBloc(
+                  bookingRepository: context.read<BookingRepository>(),
+                ),
+          ),
         ],
         child: MyApp(),
       ),
@@ -79,6 +122,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromRGBO(254, 206, 1, 1),

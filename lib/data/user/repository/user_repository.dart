@@ -34,7 +34,7 @@ class UserRepository {
         id: cacheData['_id'],
         name: cacheData['name'],
         email: cacheData['email'],
-        profilePicture: cacheData['profile_picture'],
+        profilePicture: cacheData['profilePicture'],
         coordinates: cacheData['location']['coordinates'],
       );
     }
@@ -54,7 +54,7 @@ class UserRepository {
       id: userData['_id'],
       name: userData['name'],
       email: userData['email'],
-      profilePicture: userData['profile_picture'],
+      profilePicture: userData['profilePicture'],
       coordinates: userData['location']['coordinates'],
     );
   }

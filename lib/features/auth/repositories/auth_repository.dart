@@ -25,11 +25,11 @@ class AuthRepository {
       // Save tokens from nested 'tokens'
       final tokensData = response['data']['tokens'];
       logger.d(
-        'tokens- ${tokensData['access_token']} ${tokensData['refresh_token']}',
+        'tokens- ${tokensData['accessToken']} ${tokensData['refreshToken']}',
       );
       await SecureStorage.saveTokens(
-        accessToken: tokensData['access_token'],
-        refreshToken: tokensData['refresh_token'],
+        accessToken: tokensData['accessToken'],
+        refreshToken: tokensData['refreshToken'],
       );
 
       // Return the whole data if needed
@@ -51,8 +51,8 @@ class AuthRepository {
       final response = await _authApiServices.refreshToken(refreshToken);
 
       await SecureStorage.saveTokens(
-        accessToken: response['data']['access_token'],
-        refreshToken: response['data']['refresh_token'],
+        accessToken: response['data']['accessToken'],
+        refreshToken: response['data']['refreshToken'],
       );
     } catch (e) {
       logger.e('Error in refreshToken Repo : $e');

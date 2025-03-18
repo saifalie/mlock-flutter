@@ -13,9 +13,9 @@ class AuthApiServices {
     final response = await _apiClient.post(
       '/auth/login',
       data: {
-        'id_token': idToken,
+        'idToken': idToken,
         'name': name,
-        'profile_picture': profilePicture,
+        'profilePicture': profilePicture,
       },
     );
 
@@ -25,7 +25,7 @@ class AuthApiServices {
   Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
     final response = await _apiClient.post(
       '/auth/refresh-token',
-      data: {'refresh_token': refreshToken},
+      data: {'refreshToken': refreshToken},
     );
 
     return response.data;

@@ -10,7 +10,7 @@ part 'locker_station_model.g.dart';
 abstract class LockerStationModel with _$LockerStationModel {
   const factory LockerStationModel({
     @JsonKey(name: '_id') required String id,
-    @JsonKey(name: 'station_name') required String stationName,
+    required String stationName,
     required String status,
     required LocationModel location,
     required String address,
@@ -18,7 +18,6 @@ abstract class LockerStationModel with _$LockerStationModel {
     @Default([]) List<RatingModel> ratings,
     @Default([]) List<ReviewModel> reviews,
     required List<LockerModel> lockers,
-    @JsonKey(name: 'opening_hours')
     required List<LockerStationOpeningHoursModel> openingHours,
     List<UserModel>? users,
   }) = _LockerStationModel;
@@ -92,9 +91,9 @@ abstract class LockerStationOpeningHoursModel
     with _$LockerStationOpeningHoursModel {
   const factory LockerStationOpeningHoursModel({
     required Days day,
-    @JsonKey(name: 'opens_at') required String opensAt,
-    @JsonKey(name: 'closes_at') required String closesAt,
-    @JsonKey(name: 'is_closed') required bool isClosed,
+    required String opensAt,
+    required String closesAt,
+    required bool isClosed,
   }) = _LockerStationOpeningHoursModel;
 
   factory LockerStationOpeningHoursModel.fromJson(Map<String, dynamic> json) =>

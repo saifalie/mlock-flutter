@@ -6,8 +6,9 @@ import 'package:mlock_flutter/core/permission/bloc/permissions_bloc.dart';
 import 'package:mlock_flutter/core/utils/my_dialog.dart';
 import 'package:mlock_flutter/core/utils/my_snackbar.dart';
 import 'package:mlock_flutter/data/location/bloc/location_bloc.dart';
+import 'package:mlock_flutter/features/lockerStation/pages/locker_station_page.dart';
 import 'package:mlock_flutter/features/map/bloc/locker_station_bloc.dart';
-import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_model.dart';
+import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_m.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -24,7 +25,7 @@ class _MapPageState extends State<MapPage> {
 
   // -------new code---------
   final PageController _pageController = PageController();
-  List<LockerStationModel> _lockerStations = [];
+  List<LockerStation> _lockerStations = [];
   int _selectedIndex = 0;
   BitmapDescriptor? _lockerMarkerIcon; // Store the custom icon
   //-----------------------------
@@ -104,80 +105,101 @@ class _MapPageState extends State<MapPage> {
               if (state.status == LockerStationStatus.loaded &&
                   state.lockerStations != null) {
                 _updateLockerStations(state.lockerStations!);
+              } else if (state.status == LockerStationStatus.loading) {
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.onPrimary,
+                  ),
+                );
               }
             },
           ),
         ],
-        child: Stack(
-          children: [
-            GoogleMap(
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(0, 0),
-                zoom: 2,
-              ),
-              markers: _markers,
-              zoomControlsEnabled: false,
-              circles: _circles,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              mapToolbarEnabled: false,
-              onMapCreated: (controller) {
-                _mapController = controller;
-              },
-              //----------new code--------------
-              onTap:
-                  (_) => _pageController.animateToPage(
-                    0,
-                    duration: const Duration(microseconds: 300),
-                    curve: Curves.easeInOut,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // final screenSize = MediaQuery.of(context).size;
+            final screenHeight = constraints.maxHeight;
+            final screenWidth = constraints.maxWidth;
+
+            final cardHeight = screenHeight * 0.28;
+            final buttonPadding = screenHeight * 0.01;
+            final horizontalMargin = screenWidth * 0.01;
+            return Stack(
+              children: [
+                GoogleMap(
+                  initialCameraPosition: const CameraPosition(
+                    target: LatLng(0, 0),
+                    zoom: 2,
                   ),
-              //----------------------------------------------
-            ),
-
-            //----------------new code-------pagebuilder--------------------
-            Positioned(
-              bottom: 7,
-              left: 10,
-              right: 10,
-              child: Container(
-                height: 220,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _lockerStations.length,
-                  onPageChanged: (index) {
-                    setState(() => _selectedIndex = index);
-                    _centerOnMarker(_lockerStations[index]);
+                  markers: _markers,
+                  zoomControlsEnabled: false,
+                  circles: _circles,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
+                  mapToolbarEnabled: false,
+                  onMapCreated: (controller) {
+                    _mapController = controller;
                   },
-                  itemBuilder: (context, index) {
-                    final station = _lockerStations[index];
-                    return _LockerStationCard(
-                      station: station,
-                      isSelected: index == _selectedIndex,
-                    );
-                  },
+                  //----------new code--------------
+                  onTap:
+                      (_) => _pageController.animateToPage(
+                        0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      ),
+                  //----------------------------------------------
                 ),
-              ),
-            ),
-            //---------------------------------------------------
 
-            // My location button
-            Positioned(
-              bottom: 220,
-              right: 16,
-              child: FloatingActionButton(
-                heroTag: "locationButton",
-                mini: true,
-                onPressed: () {
-                  final locationState = context.read<LocationBloc>().state;
-                  if (locationState.position != null) {
-                    _centerOnUserLocation(locationState.position!);
-                  }
-                },
-                child: const Icon(Icons.my_location),
-              ),
-            ),
-          ],
+                //----------------new code-------pagebuilder--------------------
+                Positioned(
+                  bottom: buttonPadding,
+                  left: horizontalMargin,
+                  right: horizontalMargin,
+                  child: Container(
+                    height: cardHeight,
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.015,
+                      horizontal: screenWidth * 0.02,
+                    ),
+                    child: PageView.builder(
+                      controller: _pageController,
+                      pageSnapping: true,
+                      itemCount: _lockerStations.length,
+                      onPageChanged: (index) {
+                        setState(() => _selectedIndex = index);
+                        _centerOnMarker(_lockerStations[index]);
+                      },
+                      itemBuilder: (context, index) {
+                        final station = _lockerStations[index];
+                        return _LockerStationCard(
+                          station: station,
+                          isSelected: index == _selectedIndex,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                //---------------------------------------------------
+
+                // My location button
+                Positioned(
+                  bottom: cardHeight + buttonPadding,
+                  right: horizontalMargin + 20,
+                  child: FloatingActionButton(
+                    heroTag: "locationButton",
+                    mini: screenWidth < 600,
+                    onPressed: () {
+                      final locationState = context.read<LocationBloc>().state;
+                      if (locationState.position != null) {
+                        _centerOnUserLocation(locationState.position!);
+                      }
+                    },
+                    child: const Icon(Icons.my_location),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -209,7 +231,7 @@ class _MapPageState extends State<MapPage> {
     context.read<LockerStationBloc>().add(LoadLockerStationEvent(position));
   }
 
-  void _updateLockerStations(List<LockerStationModel> stations) {
+  void _updateLockerStations(List<LockerStation> stations) {
     //---------------new code----------------
     _lockerStations = stations;
 
@@ -220,7 +242,10 @@ class _MapPageState extends State<MapPage> {
 
           return Marker(
             markerId: MarkerId('station_${station.id}'),
-            position: station.location.coordinates,
+            position: LatLng(
+              station.location.coordinates[0],
+              station.location.coordinates[1],
+            ),
             icon:
                 _lockerMarkerIcon ??
                 BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
@@ -285,11 +310,14 @@ class _MapPageState extends State<MapPage> {
 
   //---------------new code-----------------------
 
-  void _centerOnMarker(LockerStationModel station) {
+  void _centerOnMarker(LockerStation station) {
     _mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
-          target: station.location.coordinates,
+          target: LatLng(
+            station.location.coordinates[0],
+            station.location.coordinates[1],
+          ),
           zoom: 15,
           bearing: 30,
           tilt: 90,
@@ -304,7 +332,7 @@ class _MapPageState extends State<MapPage> {
 //-----------------new code--------------------
 
 class _LockerStationCard extends StatelessWidget {
-  final LockerStationModel station;
+  final LockerStation station;
   final bool isSelected;
 
   const _LockerStationCard({required this.station, required this.isSelected});
@@ -333,9 +361,35 @@ class _LockerStationCard extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
+
             // Add more station details here
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isSelected ? Colors.blue : Colors.grey[200],
+                ),
+                onPressed: () => _navigateToDetailScreen(context, station),
+                child: const Text(
+                  'View Details',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _navigateToDetailScreen(
+    BuildContext context,
+    LockerStation lockerstation,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LockerStationPage(lockerStation: lockerstation),
       ),
     );
   }
