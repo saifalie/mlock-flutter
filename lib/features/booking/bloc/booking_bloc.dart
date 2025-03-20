@@ -72,6 +72,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       emit(
         BookingState.bookingInitiated(
           lockerId: event.lockerId,
+          lockerStationId: event.lockerStationId,
           duration: event.duration,
           amount: event.amount,
           userName: event.userName,
@@ -86,6 +87,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
       final response = await _bookingRepository.createBookingRepo(
         lockerId: event.lockerId,
+        lockerStationId: event.lockerStationId,
         duration: event.duration,
         rentalPrice: event.rentalPrice,
         amount: event.amount,
@@ -105,6 +107,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       emit(
         BookingState.paymentPending(
           lockerId: event.lockerId,
+          lockerStationId: event.lockerStationId,
           duration: event.duration,
           amount: event.amount,
           orderId: paymentDetails['id'],
@@ -195,6 +198,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       emit(
         BookingState.paymentProcessing(
           lockerId: state.lockerId!,
+          lockerStationId: state.lockerStationId!,
           duration: state.duration!,
           amount: state.amount!,
           orderId: event.orderId,
@@ -218,6 +222,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         signature: event.signature,
         bookingId: state.bookingId!,
         lockerId: state.lockerId!,
+        lockerStationId: state.lockerStationId!,
         amount: state.amount!,
         currency: 'INR',
         status: 'captured',
@@ -227,6 +232,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       emit(
         BookingState.bookingConfirmed(
           lockerId: state.lockerId!,
+          lockerStationId: state.lockerStationId!,
           duration: state.duration!,
           amount: state.amount!,
           orderId: state.orderId!,
@@ -238,7 +244,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           userPhone: state.userPhone!,
         ),
       );
-        logger.d('====== BOOKING CONFIRMED STATE EMITTED ======');
+      logger.d('====== BOOKING CONFIRMED STATE EMITTED ======');
 
       logger.d('Payment verification result: $verificationResult');
     } catch (e) {

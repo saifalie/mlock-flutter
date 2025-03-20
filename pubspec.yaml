@@ -55,6 +55,7 @@ dependencies:
   cached_network_image: ^3.4.1
   razorpay_flutter: ^1.4.0
   flutter_dotenv: ^5.2.1
+  circular_countdown_timer: ^0.2.4
 
 
 dev_dependencies:

@@ -17,7 +17,10 @@ class MapPage extends StatefulWidget {
   State<MapPage> createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => false; // Set to false to rebuild when revisiting
+
   GoogleMapController? _mapController;
   final Set<Marker> _markers = {};
   final Set<Circle> _circles = {};
@@ -51,6 +54,26 @@ class _MapPageState extends State<MapPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Get current location state
+    final locationState = context.read<LocationBloc>().state;
+
+    // If we already have a position, use it immediately to load locker stations
+    if (locationState.status == LocationStatus.updated &&
+        locationState.position != null) {
+      // Use existing position to load locker stations
+      context.read<LockerStationBloc>().add(
+        ForceLoadLockerStationEvent(locationState.position!),
+      );
+    }
+
+    // Also start tracking for fresh position updates
+    context.read<LocationBloc>().add(StartTrackingEvent());
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     _mapController?.dispose();
@@ -73,6 +96,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Explore")),
       body: MultiBlocListener(
         listeners: [
           // Permission listener
@@ -107,9 +131,9 @@ class _MapPageState extends State<MapPage> {
                 _updateLockerStations(state.lockerStations!);
               } else if (state.status == LockerStationStatus.loading) {
                 CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.onPrimary,
-                  ),
+                  // valueColor: AlwaysStoppedAnimation<Color>(
+                  //   Theme.of(context).colorScheme.onPrimary,
+                  // ),
                 );
               }
             },

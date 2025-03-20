@@ -2,20 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mlock_flutter/features/auth/bloc/auth_bloc.dart';
 import 'package:mlock_flutter/features/auth/pages/login_page.dart';
-import 'package:mlock_flutter/features/booking/pages/booking_tracking_page.dart';
+import 'package:mlock_flutter/features/bookingTracking/pages/booking_tracking_page.dart';
+import 'package:mlock_flutter/features/map/bloc/locker_station_bloc.dart';
 import 'package:mlock_flutter/features/map/pages/map_page.dart';
 import 'package:mlock_flutter/features/profile/pages/profile_page.dart';
 import 'package:mlock_flutter/features/saved/pages/saved_page.dart';
 
 class MainWrapper extends StatefulWidget {
-  const MainWrapper({super.key});
+  final int initialPage;
+  const MainWrapper({super.key, required this.initialPage});
 
   @override
   State<MainWrapper> createState() => _MainWrapperState();
 }
 
 class _MainWrapperState extends State<MainWrapper> {
-  int currentPage = 0;
+  late int currentPage;
+
+  @override
+  void initState() {
+    super.initState();
+    currentPage = widget.initialPage;
+  }
 
   List<Widget> pages = const [
     BookingTrackingPage(),

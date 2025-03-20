@@ -2,11 +2,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mlock_flutter/core/app/main_wrapper.dart';
 import 'package:mlock_flutter/core/utils/logger.dart';
 import 'package:mlock_flutter/core/utils/my_dialog.dart';
 import 'package:mlock_flutter/core/utils/my_snackbar.dart';
 import 'package:mlock_flutter/features/booking/bloc/booking_bloc.dart';
-import 'package:mlock_flutter/features/booking/pages/booking_tracking_page.dart';
+import 'package:mlock_flutter/features/bookingTracking/pages/booking_tracking_page.dart';
 import 'package:mlock_flutter/features/lockerStation/bloc/station_detail_bloc.dart';
 import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_m.dart';
 
@@ -263,7 +264,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
                   // Optionally navigate to a tracking page
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (_) => const BookingTrackingPage(),
+                      builder: (_) => MainWrapper(initialPage: 0),
                     ),
                     (route) => false,
                   );
@@ -576,6 +577,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
                                   context.read<BookingBloc>().add(
                                     InitiateBookingEvent(
                                       lockerId: selectedLockerID!,
+                                      lockerStationId: widget.lockerStation.id,
                                       duration: selectedDuration,
                                       amount: selectedPrice,
                                       rentalPrice: 0.3,

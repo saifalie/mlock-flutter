@@ -5,6 +5,7 @@ sealed class BookingEvent {}
 
 class InitiateBookingEvent extends BookingEvent {
   final String lockerId;
+  final String lockerStationId;
   final String duration;
   final int amount;
   final double rentalPrice;
@@ -14,6 +15,7 @@ class InitiateBookingEvent extends BookingEvent {
 
   InitiateBookingEvent({
     required this.lockerId,
+    required this.lockerStationId,
     required this.duration,
     required this.amount,
     required this.rentalPrice,

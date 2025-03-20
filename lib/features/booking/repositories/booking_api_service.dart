@@ -7,6 +7,7 @@ class BookingApiService {
 
   Future<Map<String, dynamic>> createBookingApi({
     required String lockerId,
+    required String lockerStationId,
     required String duration,
     required double rentalPrice,
     required int amount,
@@ -16,6 +17,7 @@ class BookingApiService {
       '/booking/create',
       data: {
         'lockerId': lockerId,
+        'lockerStationId': lockerStationId,
         'duration': duration,
         'rentalPrice': rentalPrice,
         'currency': currency,
@@ -36,6 +38,7 @@ class BookingApiService {
     required String signature,
     required String bookingId,
     required String lockerId,
+    required String lockerStationId,
     required int amount,
     required String currency,
     required String status,
@@ -48,6 +51,7 @@ class BookingApiService {
         'paymentId': paymentId,
         'signature': signature,
         'lockerId': lockerId,
+        'lockerStationId': lockerStationId,
         'amount': amount,
         'currency': currency,
         'status': status,

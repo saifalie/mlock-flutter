@@ -12,6 +12,7 @@ class BookingRepository {
 
   Future<Map<String, dynamic>> createBookingRepo({
     required String lockerId,
+    required String lockerStationId,
     required String duration,
     required double rentalPrice,
     required int amount,
@@ -20,6 +21,7 @@ class BookingRepository {
     try {
       final response = await bookingApiService.createBookingApi(
         lockerId: lockerId,
+        lockerStationId: lockerStationId,
         duration: duration,
         rentalPrice: rentalPrice,
         amount: amount,
@@ -38,6 +40,7 @@ class BookingRepository {
     required String paymentId,
     required String bookingId,
     required String lockerId,
+    required String lockerStationId,
     required String signature,
     required int amount,
     required String currency,
@@ -51,6 +54,7 @@ class BookingRepository {
         signature: signature,
         bookingId: bookingId,
         lockerId: lockerId,
+        lockerStationId: lockerStationId,
         amount: amount,
         currency: currency,
         status: status,

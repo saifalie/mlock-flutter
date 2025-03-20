@@ -12,6 +12,7 @@ enum BookingStatus {
 class BookingState {
   final BookingStatus status;
   final String? lockerId;
+  final String? lockerStationId;
   final String? duration;
   final int? amount;
   final String? orderId;
@@ -26,6 +27,7 @@ class BookingState {
   const BookingState({
     required this.status,
     this.lockerId,
+    this.lockerStationId,
     this.duration,
     this.amount,
     this.orderId,
@@ -42,6 +44,7 @@ class BookingState {
 
   factory BookingState.bookingInitiated({
     required String lockerId,
+    required String lockerStationId,
     required String duration,
     required int amount,
     required String userName,
@@ -50,6 +53,7 @@ class BookingState {
   }) => BookingState(
     status: BookingStatus.bookingInitiated,
     lockerId: lockerId,
+    lockerStationId: lockerStationId,
     duration: duration,
     amount: amount,
     userEmail: userEmail,
@@ -59,6 +63,7 @@ class BookingState {
 
   factory BookingState.paymentPending({
     required String lockerId,
+    required String lockerStationId,
     required String duration,
     required int amount,
     required String orderId,
@@ -69,6 +74,7 @@ class BookingState {
   }) => BookingState(
     status: BookingStatus.paymentPending,
     lockerId: lockerId,
+    lockerStationId: lockerStationId,
     duration: duration,
     amount: amount,
     orderId: orderId,
@@ -80,6 +86,7 @@ class BookingState {
 
   factory BookingState.paymentProcessing({
     required String lockerId,
+    required String lockerStationId,
     required String duration,
     required int amount,
     required String orderId,
@@ -92,6 +99,7 @@ class BookingState {
   }) => BookingState(
     status: BookingStatus.paymentProcessing,
     lockerId: lockerId,
+    lockerStationId: lockerStationId,
     duration: duration,
     amount: amount,
     orderId: orderId,
@@ -105,6 +113,7 @@ class BookingState {
 
   factory BookingState.bookingConfirmed({
     required String lockerId,
+    required String lockerStationId,
     required String duration,
     required int amount,
     required String orderId,
@@ -118,6 +127,7 @@ class BookingState {
     status: BookingStatus.bookingConfirmed,
 
     lockerId: lockerId,
+    lockerStationId: lockerStationId,
     duration: duration,
     amount: amount,
     orderId: orderId,
@@ -131,6 +141,7 @@ class BookingState {
 
   factory BookingState.error({
     String? lockerId,
+    String? lockerStationId,
     String? duration,
     int? amount,
     String? orderId,
@@ -144,6 +155,7 @@ class BookingState {
   }) => BookingState(
     status: BookingStatus.error,
     lockerId: lockerId,
+    lockerStationId: lockerStationId,
     duration: duration,
     amount: amount,
     orderId: orderId,

@@ -19,6 +19,7 @@ class LockerStationBloc extends Bloc<LockerStationEvent, LockerStationState> {
     : _mapRepository = mapRepository,
       super(LockerStationState.initial()) {
     on<LoadLockerStationEvent>(_loadLockerStationEvent);
+    on<ForceLoadLockerStationEvent>(_forceLoadLockerStationEvent);
   }
 
   FutureOr<void> _loadLockerStationEvent(
@@ -72,6 +73,30 @@ class LockerStationBloc extends Bloc<LockerStationEvent, LockerStationState> {
       emit(LockerStationState.loaded(lockerStations: stations));
     } catch (e) {
       logger.e('LoadLockerStation Event error: $e');
+      emit(
+        LockerStationState.error('Failed to load stations: ${e.toString()}'),
+      );
+    }
+  }
+
+  // Then handle it similarly but skip the throttling checks
+  FutureOr<void> _forceLoadLockerStationEvent(
+    ForceLoadLockerStationEvent event,
+    Emitter<LockerStationState> emit,
+  ) async {
+    try {
+      // Update tracking variables
+      _lastPosition = event.position;
+      _lastUpdate = DateTime.now();
+
+      emit(LockerStationState.loading());
+
+      final List<LockerStation> stations =
+          await _mapRepository.getAllLockerStation();
+
+      emit(LockerStationState.loaded(lockerStations: stations));
+    } catch (e) {
+      logger.e('ForceLoadLockerStation Event error: $e');
       emit(
         LockerStationState.error('Failed to load stations: ${e.toString()}'),
       );

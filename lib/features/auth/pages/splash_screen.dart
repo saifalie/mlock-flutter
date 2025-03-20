@@ -94,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToMain(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const MainWrapper()),
+      MaterialPageRoute(builder: (_) => const MainWrapper(initialPage: 1,)),
       (route) => false,
     );
   }

@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         listener: (context, state) {
           if (state.status == AuthStatus.authenticated) {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => MainWrapper()),
+              MaterialPageRoute(builder: (_) => MainWrapper(initialPage: 1)),
               (route) => false,
             );
           }
