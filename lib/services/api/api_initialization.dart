@@ -21,6 +21,10 @@ class ApiClient {
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {'Content-Type': 'application/json'},
+      validateStatus: (status) {
+        return (status != null && status >= 200 && status < 300) ||
+            status == 404;
+      },
     );
 
     _dio.interceptors.addAll([
@@ -33,11 +37,11 @@ class ApiClient {
   Interceptor _authInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // get the access token from secure storage
+        // Get the access token from secure storage
         final accessToken = await SecureStorage.getAccessToken();
         logger.d('accessToken request init: $accessToken');
 
-        //add authorization header if token exists
+        // Add authorization header if token exists
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
         }
@@ -46,68 +50,65 @@ class ApiClient {
       },
 
       onError: (error, handler) async {
-        // handle 401 Unauthorized errors
-        logger.e('got the error ${error}');
+        logger.e('AuthInterceptor error: ${error}');
+
+        // Handle only 401 Unauthorized errors
         if (error.response?.statusCode == 401) {
           try {
-            logger.d('got the token expire error -- $error');
-            // create new Dio instance to avoid interceptor loop
+            logger.d('Attempting token refresh...');
+
+            // Create new Dio instance to avoid interceptor loop
             final refreshDio = Dio();
 
-            //get refresh token
-
+            // Get refresh token
             final refreshToken = await SecureStorage.getRefreshToken();
-            logger.d('refresh token: $refreshToken');
             if (refreshToken == null) {
-              logger.d('refresh token is null');
+              logger.d('No refresh token available');
               await _handleAuthFailure();
               return handler.reject(error);
             }
 
-            logger.d('go the new refresh token auth interceptor error');
-            // call refresh token endpoint
-
+            // Call refresh token endpoint
             final response = await refreshDio.post(
-              'http://10.0.2.2:7000/api/auth/refresh-token',
+              'http://192.168.10.109:7000/api/auth/refresh-token',
               data: {'refreshToken': refreshToken},
             );
 
+            // Handle successful token refresh
             final data = response.data['data'];
+            logger.d('New tokens received');
 
-            logger.d('authInterceptor new tokens from the server');
-
-            // save new tokens
+            // Save new tokens
             await SecureStorage.saveTokens(
               accessToken: data['accessToken'],
               refreshToken: data['refreshToken'],
             );
 
-            // update request headers with new access token
+            // Update request headers with new access token
             error.requestOptions.headers['Authorization'] =
                 'Bearer ${data['accessToken']}';
 
-            //repeat the original request
+            // Retry the original request
             final retryResponse = await _dio.fetch(error.requestOptions);
-
-            logger.d('auth Interceptor called the fetch method again');
             return handler.resolve(retryResponse);
-          } catch (e) {
-            // if refresh fails, clear tokens and logout user
-            // await _handleAuthFailure();
+          } catch (refreshError) {
+            logger.e('Token refresh failed: $refreshError');
 
-            // navigate to login screen
+            // Clear tokens and logout on refresh failure
+            await _handleAuthFailure();
+
+            // Reject with proper error message
             return handler.reject(
               DioException(
                 requestOptions: error.requestOptions,
                 error: 'Session expired. Please login again',
+                response: error.response,
               ),
             );
           }
-        } else if (error.response?.statusCode == 404) {
-          await SecureStorage.clearTokens();
-          await _handleAuthFailure();
         }
 
+        // For all other errors, just propagate them
         return handler.next(error);
       },
     );

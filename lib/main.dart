@@ -14,6 +14,9 @@ import 'package:mlock_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:mlock_flutter/features/booking/bloc/booking_bloc.dart';
 import 'package:mlock_flutter/features/booking/repositories/booking_api_service.dart';
 import 'package:mlock_flutter/features/booking/repositories/booking_repository.dart';
+import 'package:mlock_flutter/features/bookingTracking/bloc/booking_tracking_bloc.dart';
+import 'package:mlock_flutter/features/bookingTracking/repositories/booking_tracking_api.dart';
+import 'package:mlock_flutter/features/bookingTracking/repositories/booking_tracking_repository.dart';
 import 'package:mlock_flutter/features/lockerStation/bloc/station_detail_bloc.dart';
 import 'package:mlock_flutter/features/lockerStation/repository/station_detail_api.dart';
 import 'package:mlock_flutter/features/lockerStation/repository/station_detail_repo.dart';
@@ -46,6 +49,7 @@ void main() async {
   final mapApiService = MapApiService(apiClient);
   final stationDetailApi = StationDetailApi(apiClient);
   final bookingApiService = BookingApiService(apiClient);
+  final bookingTrackingApi = BookingTrackingApi(apiClient);
 
   // 3. Initialize Cache Services
   final userCacheService = UserCacheService(cacheService);
@@ -64,6 +68,9 @@ void main() async {
     bookingApiService: bookingApiService,
     razorpayKeyId: dotenv.env['RAZORPAY_KEY_ID']!,
   );
+  final bookingTrackingRepository = BookingTrackingRepository(
+    bookingTrackingApi,
+  );
 
   runApp(
     MultiRepositoryProvider(
@@ -73,6 +80,7 @@ void main() async {
         RepositoryProvider.value(value: mapRepository),
         RepositoryProvider.value(value: stationDetailRepo),
         RepositoryProvider.value(value: bookingRepository),
+        RepositoryProvider.value(value: bookingTrackingRepository),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -106,6 +114,14 @@ void main() async {
           BlocProvider(
             create:
                 (context) => BookingBloc(
+                  bookingRepository: context.read<BookingRepository>(),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => BookingTrackingBloc(
+                  bookingTrackingRepository:
+                      context.read<BookingTrackingRepository>(),
                   bookingRepository: context.read<BookingRepository>(),
                 ),
           ),

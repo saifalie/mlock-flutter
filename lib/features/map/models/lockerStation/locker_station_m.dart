@@ -1,3 +1,5 @@
+import 'package:mlock_flutter/core/utils/logger.dart';
+
 class LockerStation {
   final String id;
   final String stationName;
@@ -25,56 +27,64 @@ class LockerStation {
 
   // Simple fromJson converter
   factory LockerStation.fromJson(Map<String, dynamic> json) {
-    return LockerStation(
-      id: json['_id'] as String,
-      stationName: json['stationName'] as String,
-      status: json['status'] as String,
-      location: StationLocation.fromJson(
-        json['location'] as Map<String, dynamic>,
-      ),
-      address: json['address'] as String,
-      images:
-          json['images'] != null
-              ? (json['images'] as List)
-                  .map(
-                    (img) => LockerImage.fromJson(img as Map<String, dynamic>),
-                  )
-                  .toList()
-              : [],
-      openingHours:
-          json['openingHours'] != null
-              ? (json['openingHours'] as List)
-                  .map(
-                    (oh) => OpeningHours.fromJson(oh as Map<String, dynamic>),
-                  )
-                  .toList()
-              : [],
-      // Always return a list (empty if needed)
-      lockers:
-          json['lockers'] != null &&
-                  json['lockers'] is List &&
-                  (json['lockers'] as List).isNotEmpty &&
-                  (json['lockers'][0] is Map<String, dynamic>)
-              ? (json['lockers'] as List)
-                  .map((l) => Locker.fromJson(l as Map<String, dynamic>))
-                  .toList()
-              : [],
-      ratingAndReviews:
-          json['ratingAndReviews'] != null &&
-                  json['ratingAndReviews'] is List &&
-                  (json['ratingAndReviews'] as List).isNotEmpty &&
-                  (json['ratingAndReviews'][0] is Map<String, dynamic>)
-              ? (json['ratingAndReviews'] as List)
-                  .map(
-                    (r) => RatingAndReview.fromJson(r as Map<String, dynamic>),
-                  )
-                  .toList()
-              : [],
-      averageRating:
-          json['averageRating'] != null
-              ? (json['averageRating'] as num).toDouble()
-              : null,
-    );
+    try {
+      return LockerStation(
+        id: json['_id']?.toString() ?? '',
+        stationName: json['stationName']?.toString() ?? '',
+        status: json['status']?.toString() ?? '',
+        location: StationLocation.fromJson(
+          json['location'] as Map<String, dynamic>,
+        ),
+        address: json['address']?.toString() ?? '',
+        images:
+            json['images'] != null
+                ? (json['images'] as List)
+                    .map(
+                      (img) =>
+                          LockerImage.fromJson(img as Map<String, dynamic>),
+                    )
+                    .toList()
+                : [],
+        openingHours:
+            json['openingHours'] != null
+                ? (json['openingHours'] as List)
+                    .map(
+                      (oh) => OpeningHours.fromJson(oh as Map<String, dynamic>),
+                    )
+                    .toList()
+                : [],
+        // Always return a list (empty if needed)
+        lockers:
+            json['lockers'] != null &&
+                    json['lockers'] is List &&
+                    (json['lockers'] as List).isNotEmpty &&
+                    (json['lockers'][0] is Map<String, dynamic>)
+                ? (json['lockers'] as List)
+                    .map((l) => Locker.fromJson(l as Map<String, dynamic>))
+                    .toList()
+                : [],
+        ratingAndReviews:
+            json['ratingAndReviews'] != null &&
+                    json['ratingAndReviews'] is List &&
+                    (json['ratingAndReviews'] as List).isNotEmpty &&
+                    (json['ratingAndReviews'][0] is Map<String, dynamic>)
+                ? (json['ratingAndReviews'] as List)
+                    .map(
+                      (r) =>
+                          RatingAndReview.fromJson(r as Map<String, dynamic>),
+                    )
+                    .toList()
+                : [],
+        averageRating:
+            json['averageRating'] != null
+                ? (json['averageRating'] as num).toDouble()
+                : null,
+      );
+    } catch (e, stackTrace) {
+      logger.e("ERROR in LockerStation.fromJson: $e");
+      logger.e("Stack trace: $stackTrace");
+      rethrow;
+    }
   }
 }
 
@@ -119,12 +129,17 @@ class OpeningHours {
   });
 
   factory OpeningHours.fromJson(Map<String, dynamic> json) {
-    return OpeningHours(
-      day: json['day'] as String,
-      opensAt: json['opensAt'] as String,
-      closesAt: json['closesAt'] as String,
-      isClosed: json['isClosed'] as bool,
-    );
+    try {
+      return OpeningHours(
+        day: json['day']?.toString() ?? '',
+        opensAt: json['opensAt']?.toString() ?? '',
+        closesAt: json['closesAt']?.toString() ?? '',
+        isClosed: json['isClosed'] as bool? ?? false,
+      );
+    } catch (e) {
+      logger.e("ERROR in OpeningHours.fromJson: $e");
+      rethrow;
+    }
   }
 }
 
@@ -145,14 +160,20 @@ class Locker {
     required this.rentalPrice,
   });
   factory Locker.fromJson(Map<String, dynamic> json) {
-    return Locker(
-      id: json['_id'] as String,
-      lockerNumber: json['lockerNumber'] as int,
-      status: json['status'] as String,
-      doorStatus: json['doorStatus'] as String,
-      size: json['size'] as String,
-      rentalPrice: (json['rentalPrice'] as num).toDouble(),
-    );
+    try {
+      return Locker(
+        id: json['_id']?.toString() ?? '',
+        lockerNumber: (json['lockerNumber'] as num?)?.toInt() ?? 0,
+        status: json['status']?.toString() ?? '',
+        doorStatus: json['doorStatus']?.toString() ?? '',
+        size: json['size']?.toString() ?? '',
+        rentalPrice: (json['rentalPrice'] as num?)?.toDouble() ?? 0.0,
+      );
+    } catch (e, stackTrace) {
+      logger.e("ERROR in Locker.fromJson: $e");
+      logger.e("Stack trace: $stackTrace");
+      rethrow;
+    }
   }
 }
 

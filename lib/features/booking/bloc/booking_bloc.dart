@@ -29,9 +29,6 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
   _handlePaymentSuccess(PaymentSuccessResponse response) {
     logger.d('====== PAYMENT SUCCESS CALLBACK TRIGGERED ======');
-    logger.d('PaymentId: ${response.paymentId}');
-    logger.d('OrderId: ${response.orderId}');
-    logger.d('Signature: ${response.signature}');
 
     add(
       ProcessPyamentEvent(
@@ -45,7 +42,13 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
   _handlePaymentError(PaymentFailureResponse response) {
     logger.d('payment failure');
-    add(CancelBookingEvent(error: 'Payment failed ${response.message}'));
+
+    add(
+      CancelBookingEvent(
+        error: 'Payment failed ${response.message}',
+        bookingId: state.bookingId!, // Pass current booking ID to event
+      ),
+    );
   }
 
   _handleExternalWalled(ExternalWalletResponse response) {
@@ -53,6 +56,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     add(
       CancelBookingEvent(
         error: 'External wallet selected ${response.walletName}',
+        bookingId: state.bookingId!, // Pass current booking ID to event
       ),
     );
   }
@@ -278,21 +282,37 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
   FutureOr<void> _cancelBookingEvent(
     CancelBookingEvent event,
     Emitter<BookingState> emit,
-  ) {
-    emit(
-      BookingState.error(
-        error: event.error ?? 'Booking cancelled',
-        lockerId: state.lockerId,
-        duration: state.duration,
-        amount: state.amount,
-        orderId: state.orderId,
-        paymentId: state.paymentId,
-        signature: state.signature,
-        bookingId: state.bookingId,
-        userName: state.userName,
-        userEmail: state.userEmail,
-        userPhone: state.userPhone,
-      ),
-    );
+  ) async {
+    try {
+      logger.d('Attempting to cancel booking: ${event.bookingId}');
+
+      // Only cancel if we have a booking ID
+
+      await _bookingRepository.cancelBookingRepo(
+        bookingId: event.bookingId,
+        reason: event.error ?? 'User cancelled',
+      );
+      logger.d('Cancelled booking ${event.bookingId} successfully');
+
+      emit(BookingState.initial()); // Reset to initial state after cancellation
+    } catch (e) {
+      logger.e('Cancellation failed: $e');
+      emit(
+        BookingState.error(
+          error: 'Cancellation failed: ${e.toString()}',
+          // Preserve existing state details
+          lockerId: state.lockerId,
+          duration: state.duration,
+          amount: state.amount,
+          orderId: state.orderId,
+          paymentId: state.paymentId,
+          signature: state.signature,
+          bookingId: state.bookingId,
+          userName: state.userName,
+          userEmail: state.userEmail,
+          userPhone: state.userPhone,
+        ),
+      );
+    }
   }
 }

@@ -66,4 +66,57 @@ class BookingRepository {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>> cancelBookingRepo({
+    required String bookingId,
+    required String reason,
+  }) async {
+    try {
+      final response = await bookingApiService.cancelBookingApi(
+        bookingId: bookingId,
+        reason: reason,
+      );
+      logger.d('cancelBookingRepo response: $response');
+      return response;
+    } catch (e) {
+      logger.e('Error cancelling booking: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> processExtraTimePaymentRepo({
+    required String bookingId,
+    required int extraTimeSeconds,
+    required int amount,
+  }) async {
+    try {
+      final response = await bookingApiService.processExtraTimePaymentApi(
+        bookingId: bookingId,
+        extraTimeSeconds: extraTimeSeconds,
+        amount: amount,
+      );
+      logger.d('processExtraTimePayment response: $response');
+      return response;
+    } catch (e) {
+      logger.e('Error processExtraTimePayment booking: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> checkoutBookingRepo({
+    required String bookingId,
+    int extraTimeSeconds = 0,
+  }) async {
+    try {
+      final response = await bookingApiService.checkoutBookingApi(
+        bookingId: bookingId,
+        extraTimeSeconds: extraTimeSeconds,
+      );
+      logger.d('checkoutBookingRepo response: $response');
+      return response;
+    } catch (e) {
+      logger.e('Error checkout booking: $e');
+      rethrow;
+    }
+  }
 }

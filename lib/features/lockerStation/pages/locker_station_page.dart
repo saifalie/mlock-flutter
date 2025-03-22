@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mlock_flutter/core/app/main_wrapper.dart';
 import 'package:mlock_flutter/core/utils/logger.dart';
-import 'package:mlock_flutter/core/utils/my_dialog.dart';
 import 'package:mlock_flutter/core/utils/my_snackbar.dart';
 import 'package:mlock_flutter/features/booking/bloc/booking_bloc.dart';
-import 'package:mlock_flutter/features/bookingTracking/pages/booking_tracking_page.dart';
 import 'package:mlock_flutter/features/lockerStation/bloc/station_detail_bloc.dart';
 import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_m.dart';
 
@@ -572,6 +570,9 @@ class _LockerStationPageState extends State<LockerStationPage> {
                                   final userEmail = "john@example.com";
                                   final userPhone = "1234567890";
                                   logger.d('amount: $selectedPrice');
+                                  logger.d(
+                                    'selected duration $selectedDuration',
+                                  );
 
                                   //Initiate booking
                                   context.read<BookingBloc>().add(
@@ -617,69 +618,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
       }
     });
   }
-  // void _bottomSheetContainer(context, LockerStation station) {
-  //   showModalBottomSheet(
-  //     elevation: 10,
-  //     enableDrag: true,
-  //     isScrollControlled: true,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.only(
-  //         topLeft: Radius.circular(16),
-  //         topRight: Radius.circular(16),
-  //       ),
-  //     ),
-  //     context: context,
-  //     builder: (context) {
-  //       return Container(
-  //         padding: const EdgeInsets.all(16),
-  //         height: MediaQuery.of(context).size.height * 0.7,
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             Text(
-  //               'Book a Locker at ${station.stationName}',
-  //               style: const TextStyle(
-  //                 fontSize: 18,
-  //                 fontWeight: FontWeight.bold,
-  //               ),
-  //             ),
-  //             const SizedBox(height: 16),
 
-  //             // Locker selection logic here
-  //             Expanded(
-  //               child: ListView.builder(
-  //                 itemCount: station.lockers.length,
-  //                 itemBuilder: (context, index) {
-  //                   final locker = station.lockers[index];
-  //                   if (locker.status != "AVAILABLE")
-  //                     return const SizedBox.shrink();
-
-  //                   return Card(
-  //                     margin: const EdgeInsets.only(bottom: 8),
-  //                     child: ListTile(
-  //                       title: Text('Locker #${locker.lockerNumber}'),
-  //                       subtitle: Text(
-  //                         '${locker.size} - ₹${locker.rentalPrice.toStringAsFixed(2)}/min',
-  //                       ),
-  //                       trailing: ElevatedButton(
-  //                         onPressed: () {
-  //                           // Book this locker
-  //                           Navigator.pop(context);
-  //                           // Add booking logic here
-  //                         },
-  //                         child: const Text('Select'),
-  //                       ),
-  //                     ),
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget _buildImageCarousel(List<LockerImage> images) {
     if (images.isEmpty) {

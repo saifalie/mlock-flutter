@@ -1,3 +1,4 @@
+import 'package:mlock_flutter/core/utils/logger.dart';
 import 'package:mlock_flutter/services/api/api_initialization.dart';
 
 class BookingApiService {
@@ -64,6 +65,69 @@ class BookingApiService {
       return response.data;
     } else {
       throw Exception('Failed to verify payment: ${response.data}');
+    }
+  }
+
+  Future<Map<String, dynamic>> cancelBookingApi({
+    required String bookingId,
+    required String reason,
+  }) async {
+    final response = await _apiClient.post(
+      '/booking/cancel',
+      data: {'bookingId': bookingId, 'reason': reason},
+    );
+
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      throw Exception('Failed to cancel booking: ${response.data}');
+    }
+  }
+
+  Future<Map<String, dynamic>> processExtraTimePaymentApi({
+    required String bookingId,
+    required int extraTimeSeconds,
+    required int amount,
+  }) async {
+    // API call to process the extra time payment
+    final response = await _apiClient.post(
+      '/booking/extra-time',
+      data: {
+        'bookingId': bookingId,
+        'extraTimeSeconds': extraTimeSeconds,
+        'amount': amount,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return {'status': 'success', 'data': response.data};
+    } else if (response.statusCode == 404) {
+      return {'status': 'not_found', 'data': response.data};
+    } else {
+      throw Exception(
+        'Failed to get the lockerStation Details : ${response.data}',
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> checkoutBookingApi({
+    required String bookingId,
+    int extraTimeSeconds = 0,
+  }) async {
+    // API call to checkout the booking
+    final response = await _apiClient.post(
+      '/booking/checkout',
+      data: {'bookingId': bookingId, 'extraTimeSeconds': extraTimeSeconds},
+    );
+
+    if (response.statusCode == 200) {
+      return {'status': 'success', 'data': response.data};
+    } else if (response.statusCode == 404) {
+      return {'status': 'not_found', 'data': response.data};
+    } else {
+      throw Exception(
+        'Failed to get the lockerStation Details : ${response.data}',
+      );
     }
   }
 }

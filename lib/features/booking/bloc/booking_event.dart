@@ -40,6 +40,7 @@ class ProcessPyamentEvent extends BookingEvent {
 class CompleteBookingEvent extends BookingEvent {}
 
 class CancelBookingEvent extends BookingEvent {
+  final String bookingId;
   final String? error;
-  CancelBookingEvent({this.error});
+  CancelBookingEvent({this.error, required this.bookingId});
 }
