@@ -86,48 +86,63 @@ class BookingApiService {
 
   Future<Map<String, dynamic>> processExtraTimePaymentApi({
     required String bookingId,
-    required int extraTimeSeconds,
     required int amount,
+    required int extraTimeSeconds,
   }) async {
-    // API call to process the extra time payment
     final response = await _apiClient.post(
-      '/booking/extra-time',
+      '/booking/extra-time-payment',
       data: {
         'bookingId': bookingId,
+        'amount': amount,
         'extraTimeSeconds': extraTimeSeconds,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      logger.d('processExtraTimePaymentApi method data: ${response.data}');
+      return response.data;
+    } else {
+      throw Exception('Extra time payment failed: ${response.data}');
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyCheckoutPaymentApi({
+    required String orderId,
+    required String paymentId,
+    required String signature,
+    required String bookingId,
+    required int amount,
+  }) async {
+    final response = await _apiClient.post(
+      '/booking/verify-checkout',
+      data: {
+        'orderId': orderId,
+        'paymentId': paymentId,
+        'signature': signature,
+        'bookingId': bookingId,
         'amount': amount,
       },
     );
 
     if (response.statusCode == 200) {
-      return {'status': 'success', 'data': response.data};
-    } else if (response.statusCode == 404) {
-      return {'status': 'not_found', 'data': response.data};
+      return response.data;
     } else {
-      throw Exception(
-        'Failed to get the lockerStation Details : ${response.data}',
-      );
+      throw Exception('Payment verification failed: ${response.data}');
     }
   }
 
-  Future<Map<String, dynamic>> checkoutBookingApi({
+  Future<Map<String, dynamic>> directCheckoutApi({
     required String bookingId,
-    int extraTimeSeconds = 0,
   }) async {
-    // API call to checkout the booking
     final response = await _apiClient.post(
-      '/booking/checkout',
-      data: {'bookingId': bookingId, 'extraTimeSeconds': extraTimeSeconds},
+      '/booking/direct-checkout',
+      data: {'bookingId': bookingId},
     );
 
     if (response.statusCode == 200) {
-      return {'status': 'success', 'data': response.data};
-    } else if (response.statusCode == 404) {
-      return {'status': 'not_found', 'data': response.data};
+      return response.data;
     } else {
-      throw Exception(
-        'Failed to get the lockerStation Details : ${response.data}',
-      );
+      throw Exception('Direct checkout failed: ${response.data}');
     }
   }
 }

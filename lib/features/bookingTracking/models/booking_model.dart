@@ -1,5 +1,4 @@
 import 'package:mlock_flutter/core/utils/logger.dart';
-import 'package:mlock_flutter/features/bookingTracking/models/payment_model.dart';
 import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_m.dart';
 
 enum PaymentStatus { PAID, OVERDUE, PENDING }
@@ -91,7 +90,6 @@ class BookingModel {
       rethrow;
     }
   }
- 
 
   static PaymentStatus _parsePaymentStatus(dynamic status) {
     if (status == null) return PaymentStatus.OVERDUE;

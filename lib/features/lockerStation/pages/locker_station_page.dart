@@ -195,6 +195,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
 
     // Available duration options
     final List<String> durationOptions = [
+      '1 min',
       '30 min',
       '1 hr',
       '1:30 hr',
@@ -257,7 +258,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
 
                   // Show success snackbar
 
-                  MySnackbar.showSuccessSnackbar(context, 'Booking Confirmed');
+                  // MySnackbar.showSuccessSnackbar(context, 'Booking Confirmed');
 
                   // Optionally navigate to a tracking page
                   Navigator.of(context).pushAndRemoveUntil(
@@ -618,7 +619,6 @@ class _LockerStationPageState extends State<LockerStationPage> {
       }
     });
   }
-
 
   Widget _buildImageCarousel(List<LockerImage> images) {
     if (images.isEmpty) {

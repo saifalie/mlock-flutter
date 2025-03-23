@@ -86,36 +86,50 @@ class BookingRepository {
 
   Future<Map<String, dynamic>> processExtraTimePaymentRepo({
     required String bookingId,
-    required int extraTimeSeconds,
     required int amount,
+    required int extraTimeSeconds,
   }) async {
     try {
       final response = await bookingApiService.processExtraTimePaymentApi(
         bookingId: bookingId,
-        extraTimeSeconds: extraTimeSeconds,
         amount: amount,
+        extraTimeSeconds: extraTimeSeconds,
       );
-      logger.d('processExtraTimePayment response: $response');
       return response;
     } catch (e) {
-      logger.e('Error processExtraTimePayment booking: $e');
+      logger.e('Extra time payment error: $e');
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>> checkoutBookingRepo({
+  Future<Map<String, dynamic>> verifyCheckoutPaymentRepo({
+    required String orderId,
+    required String paymentId,
+    required String signature,
     required String bookingId,
-    int extraTimeSeconds = 0,
+    required int amount,
   }) async {
     try {
-      final response = await bookingApiService.checkoutBookingApi(
+      return await bookingApiService.verifyCheckoutPaymentApi(
+        orderId: orderId,
+        paymentId: paymentId,
+        signature: signature,
         bookingId: bookingId,
-        extraTimeSeconds: extraTimeSeconds,
+        amount: amount,
       );
-      logger.d('checkoutBookingRepo response: $response');
-      return response;
     } catch (e) {
-      logger.e('Error checkout booking: $e');
+      logger.e('Payment verification error: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> directCheckoutRepo({
+    required String bookingId,
+  }) async {
+    try {
+      return await bookingApiService.directCheckoutApi(bookingId: bookingId);
+    } catch (e) {
+      logger.e('Direct checkout error: $e');
       rethrow;
     }
   }

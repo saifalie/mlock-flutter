@@ -23,11 +23,15 @@ import 'package:mlock_flutter/features/lockerStation/repository/station_detail_r
 import 'package:mlock_flutter/features/map/bloc/locker_station_bloc.dart';
 import 'package:mlock_flutter/features/map/repository/map_api_service.dart';
 import 'package:mlock_flutter/features/map/repository/map_repository.dart';
+import 'package:mlock_flutter/features/rating/bloc/rating_bloc.dart';
+import 'package:mlock_flutter/features/rating/repositories/ratingandreview_api.dart';
+import 'package:mlock_flutter/features/rating/repositories/ratingandreview_repo.dart';
 import 'package:mlock_flutter/firebase_options.dart';
 import 'package:mlock_flutter/services/api/api_initialization.dart';
 import 'package:mlock_flutter/services/api/auth_api_services.dart';
 import 'package:mlock_flutter/services/cache/cache_service.dart';
 import 'package:mlock_flutter/services/cache/user_cache_service.dart';
+import 'package:mlock_flutter/services/notifications/firebase_notification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +43,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final firebaseAuth = FirebaseAuth.instance;
   final googleSignIn = GoogleSignIn();
+  await FirebaseNotification().initNotifications();
 
   // 1. Initialize core dependencies
   final apiClient = ApiClient();
@@ -50,6 +55,7 @@ void main() async {
   final stationDetailApi = StationDetailApi(apiClient);
   final bookingApiService = BookingApiService(apiClient);
   final bookingTrackingApi = BookingTrackingApi(apiClient);
+  final ratingAndReviewApi = RatingandreviewApi(apiClient);
 
   // 3. Initialize Cache Services
   final userCacheService = UserCacheService(cacheService);
@@ -71,6 +77,7 @@ void main() async {
   final bookingTrackingRepository = BookingTrackingRepository(
     bookingTrackingApi,
   );
+  final ratingandreviewRepo = RatingandreviewRepo(ratingAndReviewApi);
 
   runApp(
     MultiRepositoryProvider(
@@ -81,6 +88,7 @@ void main() async {
         RepositoryProvider.value(value: stationDetailRepo),
         RepositoryProvider.value(value: bookingRepository),
         RepositoryProvider.value(value: bookingTrackingRepository),
+        RepositoryProvider.value(value: ratingandreviewRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -123,7 +131,13 @@ void main() async {
                   bookingTrackingRepository:
                       context.read<BookingTrackingRepository>(),
                   bookingRepository: context.read<BookingRepository>(),
+                  razorpayKeyId: dotenv.env['RAZORPAY_KEY_ID']!,
                 ),
+          ),
+          BlocProvider(
+            create:
+                (context) =>
+                    RatingBloc(ratingandreviewRepo: ratingandreviewRepo),
           ),
         ],
         child: MyApp(),

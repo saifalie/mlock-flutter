@@ -6,8 +6,10 @@ enum BookingTrackingStatus {
   loaded,
   error,
   notFound,
+  checkoutPaymentPending,
   checkoutProcessing,
   checkoutSuccess,
+  paymentFailure,
 }
 
 @immutable
@@ -16,12 +18,20 @@ class BookingTrackingState {
   final BookingModel? booking;
   final String? error;
   final double? extraTimePayment;
+  final String? orderId;
+  final String? userName;
+  final String? userEmail;
+  final String? userPhone;
 
   const BookingTrackingState({
     required this.status,
     this.booking,
     this.error,
     this.extraTimePayment,
+    this.orderId,
+    this.userEmail,
+    this.userName,
+    this.userPhone,
   });
 
   //inital
@@ -49,6 +59,26 @@ class BookingTrackingState {
         status: BookingTrackingStatus.notFound,
         error: message,
       );
+  factory BookingTrackingState.paymentFailure(String? message) =>
+      BookingTrackingState(
+        status: BookingTrackingStatus.paymentFailure,
+        error: message,
+      );
+
+  factory BookingTrackingState.checkoutPaymentPending({
+    required BookingModel booking,
+    required String orderId,
+    required String userName,
+    required String userPhone,
+    required String userEmail,
+  }) => BookingTrackingState(
+    status: BookingTrackingStatus.checkoutPaymentPending,
+    booking: booking,
+    orderId: orderId,
+    userEmail: userEmail,
+    userName: userName,
+    userPhone: userName,
+  );
 
   // checkoutProcessing
   factory BookingTrackingState.checkoutProcessing(BookingModel booking) {
@@ -59,8 +89,8 @@ class BookingTrackingState {
   }
 
   //checkout success
-  factory BookingTrackingState.checkoutSuccess(
-    BookingModel booking, {
+  factory BookingTrackingState.checkoutSuccess({
+    BookingModel? booking,
     double? extraTimePayment,
   }) {
     return BookingTrackingState(

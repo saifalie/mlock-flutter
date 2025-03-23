@@ -7,9 +7,11 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mlock_flutter/core/permission/bloc/permissions_bloc.dart';
+import 'package:mlock_flutter/core/utils/logger.dart';
 import 'package:mlock_flutter/core/utils/my_dialog.dart';
 import 'package:mlock_flutter/core/utils/my_snackbar.dart';
 import 'package:mlock_flutter/data/location/bloc/location_bloc.dart';
+import 'package:mlock_flutter/data/user/bloc/user_bloc.dart';
 import 'package:mlock_flutter/features/bookingTracking/bloc/booking_tracking_bloc.dart';
 import 'package:mlock_flutter/features/bookingTracking/models/booking_model.dart';
 import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_m.dart';
@@ -39,6 +41,10 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
   bool _isInExtraTime = false;
   int _extraTimeSeconds = 0;
   Timer? _extraTimeTimer;
+  // UserState? userstate;
+  final String userPhone = '9826080407';
+  final userName = "John Doe";
+  final userEmail = "john@example.com";
 
   LatLng? _userLocation;
   LatLng? _lockerStationLocation;
@@ -79,6 +85,7 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
 
     final locationState = context.read<LocationBloc>().state;
     final bookingState = context.read<BookingTrackingBloc>().state;
+    // userstate = context.read<UserBloc>().state;
 
     if (locationState.status == LocationStatus.updated &&
         locationState.position != null) {
@@ -348,49 +355,57 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
                   Navigator.of(context, rootNavigator: true).pop();
                 }
 
-                // Show success message
-                showDialog(
-                  context: context,
-                  builder:
-                      (context) => AlertDialog(
-                        title: const Text('Checkout Successful'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Your locker has been successfully checked out.',
-                            ),
-                            if (state.extraTimePayment != null) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                'Extra time charge: \$${state.extraTimePayment!.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ],
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder:
+                        (context) => RatingPage(
+                          lockerStationId: state.booking!.lockerStation!.id,
                         ),
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => RatingPage(
-                                        bookingId: state.booking!.id,
-                                        lockerStation:
-                                            state.booking!.lockerStation!,
-                                      ),
-                                ),
-                              );
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      ),
+                  ),
                 );
+
+                // Show success message
+                // showDialog(
+                //   context: context,
+                //   builder:
+                //       (context) => AlertDialog(
+                //         title: const Text('Checkout Successful'),
+                //         content: Column(
+                //           mainAxisSize: MainAxisSize.min,
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             const Text(
+                //               'Your locker has been successfully checked out.',
+                //             ),
+                //             if (state.extraTimePayment != null) ...[
+                //               const SizedBox(height: 8),
+                //               Text(
+                //                 'Extra time charge: \$${state.extraTimePayment!.toStringAsFixed(2)}',
+                //                 style: const TextStyle(
+                //                   fontWeight: FontWeight.bold,
+                //                 ),
+                //               ),
+                //             ],
+                //           ],
+                //         ),
+                //         actions: [
+                //           ElevatedButton(
+                //             onPressed: () {
+                //               Navigator.of(context).pushReplacement(
+                //                 MaterialPageRoute(
+                //                   builder:
+                //                       (context) => RatingPage(
+                //                         lockerStationId:
+                //                             state.booking!.lockerStation!.id,
+                //                       ),
+                //                 ),
+                //               );
+                //             },
+                //             child: const Text('OK'),
+                //           ),
+                //         ],
+                //       ),
+                // );
               } else if (state.status ==
                   BookingTrackingStatus.checkoutProcessing) {
                 Center(child: CircularProgressIndicator());
@@ -403,6 +418,8 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
                   context,
                   state.error ?? 'Failed to process your request',
                 );
+              } else if (state.status == BookingTrackingStatus.paymentFailure) {
+                MySnackbar.showErrorSnackbar(context, state.error);
               }
             },
           ),
@@ -688,6 +705,11 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
     // For demonstration, let's set a default value
     final rentalPrice = booking.rentalPrice;
 
+    // Calculate extra seconds if in extra time
+    final checkoutTime = DateTime.now();
+    final extraSeconds =
+        checkoutTime.difference(booking.checkoutTime!).inSeconds;
+
     // Show confirmation dialog with extra time payment if needed
     if (hasExtraTime) {
       final extraPayment = (extraTimeSeconds / 60) * rentalPrice;
@@ -707,7 +729,7 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Extra charge: \$${extraPayment.toStringAsFixed(2)}',
+                    'Extra charge: ₹${extraPayment.toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -720,13 +742,17 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
+
                     // Dispatch checkout event with extra time
                     context.read<BookingTrackingBloc>().add(
                       CheckoutBookingEvent(
                         bookingId: bookingId,
                         hasExtraTime: true,
-                        extraTimeSeconds: extraTimeSeconds,
+                        extraTimeSeconds: extraSeconds,
                         rentalPrice: rentalPrice,
+                        userEmail: userEmail,
+                        userName: userName,
+                        userPhone: userPhone,
                       ),
                     );
                     // Show loading dialog
@@ -754,12 +780,21 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
                   onPressed: () {
                     Navigator.pop(context);
                     // Dispatch regular checkout event
+
+                    // logger.d('user: ${userstate!.user}');
+
+                    // final userState = context.read<UserBloc>().state;
+                    // logger.d('user: ${userState.user}');
+
                     context.read<BookingTrackingBloc>().add(
                       CheckoutBookingEvent(
                         bookingId: bookingId,
                         hasExtraTime: false,
                         extraTimeSeconds: 0,
                         rentalPrice: rentalPrice,
+                        userEmail: userEmail,
+                        userPhone: userPhone,
+                        userName: userName,
                       ),
                     );
                     // Show loading dialog
@@ -802,100 +837,6 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
           ),
     );
   }
-
-  // Widget _buildCountdownSection(BookingModel booking, double screenWidth) {
-  //   final isActive = booking.checkoutTime?.isAfter(DateTime.now()) ?? false;
-
-  //   return Container(
-  //     width: double.infinity,
-  //     padding: const EdgeInsets.all(16),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(12),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withOpacity(0.1),
-  //           blurRadius: 8,
-  //           offset: const Offset(0, 2),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text(
-  //           'Locker: ${booking.lockerStation!.stationName} - ${booking.locker!.lockerNumber}',
-  //           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //         ),
-
-  //         const SizedBox(height: 24),
-
-  //         if (booking.checkoutTime != null)
-  //           Center(
-  //             child:
-  //                 isActive
-  //                     ? CircularCountDownTimer(
-  //                       initialDuration: 0,
-  //                       controller: _countDownController,
-  //                       width: screenWidth * 0.5,
-  //                       fillColor: Colors.blue,
-  //                       height: screenWidth * 0.5,
-  //                       duration: _remainingSeconds,
-  //                       ringColor: Colors.grey[300]!,
-  //                       backgroundColor: Colors.white,
-  //                       strokeWidth: 15.0,
-  //                       strokeCap: StrokeCap.round,
-  //                       textStyle: const TextStyle(
-  //                         fontSize: 20.0,
-  //                         color: Colors.green,
-  //                         fontWeight: FontWeight.bold,
-  //                       ),
-  //                       textFormat: CountdownTextFormat.HH_MM_SS,
-  //                       isReverse: true,
-  //                       autoStart: true,
-  //                       onComplete: () {
-  //                         if (mounted) {
-  //                           setState(() {
-  //                             _isInExtraTime = true;
-  //                             _extraTimeSeconds = 0;
-
-  //                             // Start a timer to update the extra time counter
-  //                             _extraTimeTimer?.cancel();
-  //                             _extraTimeTimer = Timer.periodic(
-  //                               const Duration(seconds: 1),
-  //                               (timer) {
-  //                                 if (mounted) {
-  //                                   setState(() {
-  //                                     _extraTimeSeconds++;
-  //                                   });
-  //                                 } else {
-  //                                   timer.cancel();
-  //                                 }
-  //                               },
-  //                             );
-  //                           });
-  //                         }
-  //                       },
-  //                     )
-  //                     : _buildExtraTimeDisplay(screenWidth),
-  //           ),
-
-  //         const SizedBox(height: 24),
-
-  //         ElevatedButton(
-  //           style: ElevatedButton.styleFrom(
-  //             minimumSize: Size(screenWidth * 0.9, 48),
-  //             backgroundColor: isActive ? Colors.blue : Colors.red,
-  //           ),
-  //           onPressed: () {
-  //             // Handle checkout
-  //           },
-  //           child: const Text('Checkout Now'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildExtraTimeDisplay(double screenWidth) {
     // Format extra time as hours, minutes, seconds
