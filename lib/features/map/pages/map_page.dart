@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mlock_flutter/core/permission/bloc/permissions_bloc.dart';
+import 'package:mlock_flutter/core/theme/app_theme.dart';
 import 'package:mlock_flutter/core/utils/my_dialog.dart';
 import 'package:mlock_flutter/core/utils/my_snackbar.dart';
 import 'package:mlock_flutter/data/location/bloc/location_bloc.dart';
@@ -353,8 +354,6 @@ class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
   //----------------------------------------
 }
 
-//-----------------new code--------------------
-
 class _LockerStationCard extends StatelessWidget {
   final LockerStation station;
   final bool isSelected;
@@ -363,58 +362,308 @@ class _LockerStationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              station.stationName,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.blue : Colors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              station.address,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 8),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
-            // Add more station details here
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isSelected ? Colors.blue : Colors.grey[200],
-                ),
-                onPressed: () => _navigateToDetailScreen(context, station),
-                child: const Text(
-                  'View Details',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
+    return Card(
+      elevation: isSelected ? 4 : 2,
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isSelected ? colorScheme.primary : Colors.transparent,
+          width: 1.2,
+        ),
+      ),
+      child: SizedBox(
+        height: 120,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(flex: 3, child: _buildDetailsSection(context)),
+            Expanded(flex: 2, child: _buildImageSection(context)),
           ],
         ),
       ),
     );
   }
 
-  void _navigateToDetailScreen(
-    BuildContext context,
-    LockerStation lockerstation,
-  ) {
-    Navigator.of(context).push(
+  Widget _buildDetailsSection(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final statusColor = _getStatusColors(
+      theme,
+      theme.brightness == Brightness.dark,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Station Name and Status Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      station.stationName,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            isSelected
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      station.status.toUpperCase(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Address
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: colorScheme.secondary,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      station.address,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 13,
+                        color: colorScheme.onSurface,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          _buildBottomSection(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageSection(BuildContext context) {
+    return SizedBox.expand(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
+        child:
+            station.images.isNotEmpty
+                ? Image.network(
+                  station.images.first.url,
+                  fit: BoxFit.cover,
+                  loadingBuilder:
+                      (context, child, loadingProgress) =>
+                          loadingProgress == null
+                              ? child
+                              : _buildLoadingState(),
+                  errorBuilder:
+                      (context, error, stackTrace) => _buildPlaceholderImage(),
+                )
+                : _buildPlaceholderImage(),
+      ),
+    );
+  }
+
+  Widget _buildBottomSection(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+        children: [
+          // Rating
+          Row(
+            children: [
+              Icon(Icons.star_rounded, size: 18, color: AppTheme.accentGold),
+              const SizedBox(width: 4),
+              Text(
+                station.averageRating?.toStringAsFixed(1) ?? '0.0',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '(${station.ratingAndReviews.length})',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+
+          // Details Button
+          GestureDetector(
+            child: Icon(
+              Icons.arrow_circle_right,
+              size: 35,
+              color: colorScheme.primary,
+            ),
+            onTap: () => _navigateToDetailScreen(context, station),
+          ),
+          // Icon(
+          //   style: ElevatedButton.styleFrom(
+          //     backgroundColor: colorScheme.primary,
+          //     foregroundColor: colorScheme.onPrimary,
+          //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(8),
+          //     ),
+          //   ),
+          //   onPressed: () => _navigateToDetailScreen(context, station),
+          //   icon: Icon(Icons.arrow_circle_right,),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColors(ThemeData theme, bool isDark) {
+    switch (station.status.toUpperCase()) {
+      case 'OPEN':
+        return theme.colorScheme.secondary;
+      case 'MAINTENANCE':
+        return isDark ? Colors.amber : AppTheme.accentGold;
+      case 'CLOSED':
+        return theme.colorScheme.error;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildLoadingState() {
+    return Container(
+      color: Colors.grey.shade100,
+      child: const Center(
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      color: Colors.grey.shade200,
+      child: const Center(
+        child: Icon(Icons.lock_clock_outlined, size: 32, color: Colors.white),
+      ),
+    );
+  }
+
+  void _navigateToDetailScreen(BuildContext context, LockerStation station) {
+    Navigator.push(
+      context,
       MaterialPageRoute(
-        builder: (context) => LockerStationPage(lockerStation: lockerstation),
+        builder: (context) => LockerStationPage(lockerStation: station),
       ),
     );
   }
 }
+
+//-----------------new code--------------------
+
+// class _LockerStationCard extends StatelessWidget {
+//   final LockerStation station;
+//   final bool isSelected;
+
+//   const _LockerStationCard({required this.station, required this.isSelected});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       elevation: 4,
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+//       child: Padding(
+//         padding: const EdgeInsets.all(15),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               station.stationName,
+//               style: TextStyle(
+//                 fontSize: 18,
+//                 fontWeight: FontWeight.bold,
+//                 color: isSelected ? Colors.blue : Colors.black,
+//               ),
+//             ),
+//             const SizedBox(height: 8),
+//             Text(
+//               station.address,
+//               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+//             ),
+//             const SizedBox(height: 8),
+
+//             // Add more station details here
+//             const SizedBox(height: 12),
+//             Align(
+//               alignment: Alignment.centerRight,
+//               child: ElevatedButton(
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: isSelected ? Colors.blue : Colors.grey[200],
+//                 ),
+//                 onPressed: () => _navigateToDetailScreen(context, station),
+//                 child: const Text(
+//                   'View Details',
+//                   style: TextStyle(color: Colors.white),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _navigateToDetailScreen(
+//     BuildContext context,
+//     LockerStation lockerstation,
+//   ) {
+//     Navigator.of(context).push(
+//       MaterialPageRoute(
+//         builder: (context) => LockerStationPage(lockerStation: lockerstation),
+//       ),
+//     );
+//   }
+// }

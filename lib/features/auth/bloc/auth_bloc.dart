@@ -8,6 +8,7 @@ import 'package:mlock_flutter/features/auth/models/user/user_model.dart';
 import 'package:mlock_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mlock_flutter/services/notifications/firebase_notification.dart';
 import 'package:mlock_flutter/services/secure_storage.dart';
 
 part 'auth_event.dart';
@@ -17,6 +18,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
+  final FirebaseNotification _firebaseNotification;
+
   var authCheckHit = 0;
 
   late StreamSubscription<User?> _authSubscription;
@@ -25,14 +28,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required AuthRepository authRepository,
     required FirebaseAuth firebaseAuth,
     required GoogleSignIn googleSignIn,
+    required FirebaseNotification firebaseNotification,
   }) : _authRepository = authRepository,
        _firebaseAuth = firebaseAuth,
        _googleSignIn = googleSignIn,
+       _firebaseNotification = firebaseNotification,
        super(AuthState.initial()) {
     on<GoogleSignInRequestedEvent>(_googleSignInRequestedEvent);
     on<AuthCheckRequestedEvent>(_authCheckRequestedEvent);
     on<SignOutRequestedEvent>(_signOutRequestedEvent);
     on<InitialDelayCompletedEvent>(_onInitialDelayCompleted);
+    on<UpdateFcmTokenEvent>(_updateFcmTokenEvent);
 
     // _authSubscription = _firebaseAuth.authStateChanges().listen((user) {
     //   if (user != null) {
@@ -68,13 +74,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       emit(AuthState.loading());
 
-      final googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         emit(AuthState.initial());
         return;
       }
 
-      final googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Get FCM token
+      final fcmToken = await _firebaseNotification.getToken() ?? '';
+
       final credentinal = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -83,14 +94,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final userCredential = await _firebaseAuth.signInWithCredential(
         credentinal,
       );
-      await _handleAuthentication(userCredential.user!, emit);
+      await _handleAuthentication(userCredential.user!, emit, fcmToken);
     } catch (e) {
       logger.e('google signin error : $e');
       emit(AuthState.error(e.toString()));
     }
   }
 
-  Future<void> _handleAuthentication(User user, Emitter<AuthState> emit) async {
+  Future<void> _handleAuthentication(
+    User user,
+    Emitter<AuthState> emit,
+    String fcmToken,
+  ) async {
     final idToken = await user.getIdToken();
     final name = user.displayName;
     final profilePicture = user.photoURL;
@@ -100,6 +115,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         idToken!,
         name!,
         profilePicture!,
+        fcmToken,
       );
 
       final user = authResponse['user'];
@@ -112,10 +128,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       //   ),
       // );
 
+      logger.d(
+        'user info: id: ${user['id']} name: ${user['name']} profilePicture ${user['profilePicture']} email: ${user['email']}',
+      );
+
       emit(
         AuthState.authenticated(
           UserModel(
-            id: user['_id'],
+            id: user['id'],
             name: user['name'],
             profilePicture: user['profilePicture'],
             email: user['email'],
@@ -145,6 +165,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = _firebaseAuth.currentUser;
       logger.d('Auth Check - Firebase User: $user');
 
+      final fcmToken = await _firebaseNotification.getToken() ?? '';
+
       if (user == null) {
         await SecureStorage.clearTokens();
         emit(AuthState.unauthenticated());
@@ -153,7 +175,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final accessToken = await SecureStorage.getAccessToken();
       if (accessToken == null) {
-        await _handleAuthentication(user, emit);
+        await _handleAuthentication(user, emit, fcmToken);
         return;
       }
       final userData = await _authRepository.getUserData(true);
@@ -214,6 +236,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       logger.e('got error while sign out');
       emit(AuthState.error(e.toString()));
+    }
+  }
+
+  FutureOr<void> _updateFcmTokenEvent(
+    UpdateFcmTokenEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      // Only update if user is authenticated
+      if (state.status == AuthStatus.authenticated) {
+        final currentUser = _firebaseAuth.currentUser;
+        if (currentUser != null) {
+          // Call repository method to update FCM token
+          await _authRepository.updateFcmTokenRepo(event.fcmToken);
+          logger.d('FCM token updated successfully');
+        }
+      }
+    } catch (e) {
+      logger.e('Error updating FCM token: $e');
     }
   }
 }

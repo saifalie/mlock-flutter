@@ -9,3 +9,8 @@ class LoadStationDetailEvent extends StationDetailEvent {
   final String lockerId;
   LoadStationDetailEvent(this.lockerId);
 }
+
+class ToggleSaveStationEvent extends StationDetailEvent {
+  final String stationId;
+  ToggleSaveStationEvent(this.stationId);
+}

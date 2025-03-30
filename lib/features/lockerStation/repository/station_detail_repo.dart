@@ -29,4 +29,27 @@ class StationDetailRepo {
       rethrow;
     }
   }
+
+  Future<bool> toggleSaveStationRepo(String stationId) async {
+    try {
+      final response = await _stationDetailApi.toggleSaveStation(stationId);
+      logger.d('toggleSaveStationRepo data: $response');
+      return response['data']['isSaved'];
+    } catch (e) {
+      logger.e('Toggle save error: $e');
+      rethrow;
+    }
+  }
+
+  Future<bool> isStationSavedRepo(String stationId) async {
+    try {
+      final response = await _stationDetailApi.checkSavedStatus(stationId);
+
+      logger.d('isStationSavedRepo data: $response');
+      return response['data']['isSaved'];
+    } catch (e) {
+      logger.e('Check saved error: $e');
+      return false;
+    }
+  }
 }

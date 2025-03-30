@@ -194,14 +194,14 @@ class RatingAndReview {
 
   factory RatingAndReview.fromJson(Map<String, dynamic> json) {
     return RatingAndReview(
-      id: json['_id'] as String,
-      rating: json['rating'] as int,
-      message: json['message'] as String?,
+      id: json['_id']?.toString() ?? '', // Handle null
+      rating: (json['rating'] as int?) ?? 0, // Default value
+      message: json['message']?.toString(),
       userId:
           json['user'] is String
               ? json['user'] as String
-              : json['user']['_id'] as String,
-      isVisible: json['isVisible'] as bool,
+              : json['user']?['_id']?.toString() ?? '', // Handle nested or null
+      isVisible: json['isVisible'] as bool? ?? false,
     );
   }
 }

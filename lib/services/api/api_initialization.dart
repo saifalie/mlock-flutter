@@ -18,6 +18,7 @@ class ApiClient {
     //Base configuration
     _dio.options = BaseOptions(
       baseUrl: 'http://192.168.29.156:7000/api',
+      // baseUrl: 'http://localhost:7000/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {'Content-Type': 'application/json'},

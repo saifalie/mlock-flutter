@@ -15,5 +15,17 @@ class StationDetailApi {
 
     return response.data;
   }
+
+  Future<Map<String, dynamic>> toggleSaveStation(String stationId) async {
+    final response = await _apiClient.put('/lockerStation/$stationId/save');
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> checkSavedStatus(String stationId) async {
+    final response = await _apiClient.get(
+      '/lockerStation/$stationId/saved-status',
+    );
+
+    return response.data;
+  }
 }
-  

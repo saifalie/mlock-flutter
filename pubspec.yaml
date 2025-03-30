@@ -58,6 +58,7 @@ dependencies:
   circular_countdown_timer: ^0.2.4
   flutter_rating_bar: ^4.0.1
   firebase_messaging: ^15.2.4
+  flex_color_scheme: ^8.2.0
 
 dev_dependencies:
   flutter_test:

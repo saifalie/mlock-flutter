@@ -14,12 +14,14 @@ class AuthRepository {
     String idToken,
     String name,
     String profilePicture,
+    String fcmToken,
   ) async {
     try {
       final response = await _authApiServices.signInWithGoogle(
         idToken,
         name,
         profilePicture,
+        fcmToken,
       );
 
       // Save tokens from nested 'tokens'
@@ -78,5 +80,14 @@ class AuthRepository {
   bool _isCacheValid() {
     return _lastFetchTime != null &&
         DateTime.now().difference(_lastFetchTime!) < Duration(minutes: 15);
+  }
+
+  Future<void> updateFcmTokenRepo(String fcmToken) async {
+    try {
+      await _authApiServices.updateFcmTokenApi(fcmToken);
+    } catch (e) {
+      logger.e('Error in updateFcmToken Repo: $e');
+      rethrow;
+    }
   }
 }

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mlock_flutter/core/constants/navigation.constants.dart';
 import 'package:mlock_flutter/core/permission/bloc/permissions_bloc.dart';
+import 'package:mlock_flutter/core/theme/app_theme.dart';
 import 'package:mlock_flutter/data/location/bloc/location_bloc.dart';
 import 'package:mlock_flutter/data/user/bloc/user_bloc.dart';
 import 'package:mlock_flutter/data/user/repository/user_repository.dart';
@@ -26,6 +28,10 @@ import 'package:mlock_flutter/features/map/repository/map_repository.dart';
 import 'package:mlock_flutter/features/rating/bloc/rating_bloc.dart';
 import 'package:mlock_flutter/features/rating/repositories/ratingandreview_api.dart';
 import 'package:mlock_flutter/features/rating/repositories/ratingandreview_repo.dart';
+import 'package:mlock_flutter/features/saved/bloc/saved_page_bloc.dart';
+import 'package:mlock_flutter/features/saved/repositories/saved_page_api.dart';
+import 'package:mlock_flutter/features/saved/repositories/saved_page_repo.dart';
+
 import 'package:mlock_flutter/firebase_options.dart';
 import 'package:mlock_flutter/services/api/api_initialization.dart';
 import 'package:mlock_flutter/services/api/auth_api_services.dart';
@@ -43,7 +49,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final firebaseAuth = FirebaseAuth.instance;
   final googleSignIn = GoogleSignIn();
-  await FirebaseNotification().initNotifications();
+  final firebaseNotification = FirebaseNotification();
+
+  //notification initialize
+  await firebaseNotification.initNotifications();
 
   // 1. Initialize core dependencies
   final apiClient = ApiClient();
@@ -56,6 +65,7 @@ void main() async {
   final bookingApiService = BookingApiService(apiClient);
   final bookingTrackingApi = BookingTrackingApi(apiClient);
   final ratingAndReviewApi = RatingandreviewApi(apiClient);
+  final savedPageApi = SavedPageApi(apiClient);
 
   // 3. Initialize Cache Services
   final userCacheService = UserCacheService(cacheService);
@@ -79,6 +89,8 @@ void main() async {
   );
   final ratingandreviewRepo = RatingandreviewRepo(ratingAndReviewApi);
 
+  final savedPageRepo = SavedPageRepo(savedPageApi);
+
   runApp(
     MultiRepositoryProvider(
       providers: [
@@ -89,6 +101,8 @@ void main() async {
         RepositoryProvider.value(value: bookingRepository),
         RepositoryProvider.value(value: bookingTrackingRepository),
         RepositoryProvider.value(value: ratingandreviewRepo),
+        RepositoryProvider.value(value: firebaseNotification),
+        RepositoryProvider.value(value: savedPageRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -98,6 +112,7 @@ void main() async {
                   authRepository: context.read<AuthRepository>(),
                   firebaseAuth: firebaseAuth,
                   googleSignIn: googleSignIn,
+                  firebaseNotification: context.read<FirebaseNotification>(),
                 ),
           ),
           BlocProvider(create: (context) => PermissionsBloc()),
@@ -139,26 +154,31 @@ void main() async {
                 (context) =>
                     RatingBloc(ratingandreviewRepo: ratingandreviewRepo),
           ),
+          BlocProvider(
+            create:
+                (context) => SavedPageBloc(
+                  savedPageRepo: savedPageRepo,
+                  stationDetailRepo: context.read<StationDetailRepo>(),
+                ),
+          ),
         ],
-        child: MyApp(),
+        child: MyApp(firebaseNotification: firebaseNotification),
       ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseNotification firebaseNotification;
+  const MyApp({super.key, required this.firebaseNotification});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromRGBO(254, 206, 1, 1),
-          primary: const Color.fromRGBO(254, 206, 1, 1),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       home: SplashScreen(),
     );
   }
