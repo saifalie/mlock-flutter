@@ -1341,6 +1341,13 @@ class _LockerStationPageState extends State<LockerStationPage> {
                                       : () {
                                         bottomSheetClosedForPayment = true;
 
+                                        // Get selected locker
+                                        final selectedLocker = station.lockers
+                                            .firstWhere(
+                                              (locker) =>
+                                                  locker.id == selectedLockerID,
+                                            );
+
                                         final userName = "John Doe";
                                         final userEmail = "john@example.com";
                                         final userPhone = "1234567890";
@@ -1357,7 +1364,8 @@ class _LockerStationPageState extends State<LockerStationPage> {
                                                 widget.lockerStation.id,
                                             duration: selectedDuration,
                                             amount: selectedPrice,
-                                            rentalPrice: 77,
+                                            rentalPrice:
+                                                selectedLocker.rentalPrice,
                                             userEmail: userEmail,
                                             userName: userName,
                                             userPhone: userPhone,

@@ -304,7 +304,7 @@ class _LoginPageState extends State<LoginPage> {
                         );
                       },
               style: ElevatedButton.styleFrom(
-                backgroundColor: accentColor,
+                backgroundColor: Colors.white,
                 foregroundColor: Colors.black87,
                 padding: EdgeInsets.symmetric(
                   horizontal: 30,
@@ -313,34 +313,45 @@ class _LoginPageState extends State<LoginPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                elevation: 0,
+                elevation: 2,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Google icon (use a proper asset in production)
-                  Container(
+                  // Google icon (replace with proper asset in production)
+                  SizedBox(
                     width: 24,
                     height: 24,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                    child: Image.asset(
+                      'assets/icons/google.png',
+                      fit: BoxFit.cover,
                     ),
-                    child: Center(
-                      child: Text(
-                        "G",
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    // If you don't have the asset, you can use this temporary solution
+                    // child: Container(
+                    //   decoration: const BoxDecoration(
+                    //     color: Colors.white,
+                    //     shape: BoxShape.circle,
+                    //   ),
+                    //   child: Center(
+                    //     child: Text(
+                    //       "G",
+                    //       style: TextStyle(
+                    //         color: Colors.red,
+                    //         fontSize: 16,
+                    //         fontWeight: FontWeight.bold,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ),
                   const SizedBox(width: 12),
                   const Text(
                     'Sign in with Google',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
                   ),
                 ],
               ),
