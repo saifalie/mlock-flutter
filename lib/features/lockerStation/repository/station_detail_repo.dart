@@ -8,7 +8,7 @@ class StationDetailRepo {
   StationDetailRepo({required StationDetailApi stationDetailApi})
     : _stationDetailApi = stationDetailApi;
 
-  Future<LockerStation> getParticularStation({
+  Future<Map<String, dynamic>> getParticularStation({
     required String stationId,
   }) async {
     try {
@@ -23,7 +23,10 @@ class StationDetailRepo {
 
       final station = LockerStation.fromJson(rawData['lockerStation']);
 
-      return station;
+      return {
+        'station': station,
+        'hasActiveBooking': rawData['hasActiveBooking'],
+      };
     } catch (e) {
       logger.e('Error StationDetail getParticularStation method: $e');
       rethrow;

@@ -1,3 +1,4 @@
+import 'package:mlock_flutter/core/utils/logger.dart';
 import 'package:mlock_flutter/features/auth/models/user/user_model.dart';
 import 'package:mlock_flutter/services/api/auth_api_services.dart';
 import 'package:mlock_flutter/services/cache/user_cache_service.dart';
@@ -16,6 +17,7 @@ class UserRepository {
        _userCacheService = userCacheService;
 
   Future<UserModel> getUserData({bool forceRefresh = false}) async {
+    logger.d('getuser call');
     // If force refresh is requested, bypass the cache
     if (forceRefresh) {
       return _fetchAndCacheUserData();
@@ -36,6 +38,7 @@ class UserRepository {
         email: cacheData['email'],
         profilePicture: cacheData['profilePicture'],
         coordinates: cacheData['location']['coordinates'],
+        currentLocker: cacheData['currentLocker'],
       );
     }
 
@@ -50,12 +53,15 @@ class UserRepository {
     await _userCacheService.saveUserData(userData);
     await _userCacheService.saveLastFetchTime(DateTime.now());
 
+    logger.d('userdata: $userData');
+
     return UserModel(
       id: userData['_id'],
       name: userData['name'],
       email: userData['email'],
       profilePicture: userData['profilePicture'],
       coordinates: userData['location']['coordinates'],
+      currentLocker: userData['currentLocker'],
     );
   }
 

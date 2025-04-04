@@ -6,7 +6,6 @@ import 'package:mlock_flutter/core/utils/logger.dart';
 import 'package:mlock_flutter/core/utils/my_dialog.dart';
 import 'package:mlock_flutter/features/auth/bloc/auth_bloc.dart';
 import 'package:mlock_flutter/features/auth/pages/login_page.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -79,13 +78,23 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Replace with your app's logo
-            const Icon(Icons.lock, size: 100, color: Colors.white),
-            const SizedBox(height: 24),
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).colorScheme.onPrimary,
+            Container(
+              height: 130,
+              width: 130,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage('assets/logo/mlock_logo.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
+            // const SizedBox(height: 24),
+            // CircularProgressIndicator(
+            //   valueColor: AlwaysStoppedAnimation<Color>(
+            //     Theme.of(context).colorScheme.onPrimary,
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -94,7 +103,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToMain(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const MainWrapper(initialPage: 1,)),
+      MaterialPageRoute(builder: (_) => const MainWrapper(initialPage: 1)),
       (route) => false,
     );
   }
@@ -118,72 +127,6 @@ class _SplashScreenState extends State<SplashScreen> {
               () => context.read<AuthBloc>().add(AuthCheckRequestedEvent()),
         ),
       ),
-    );
-  }
-
-  void _showPermissionDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Location Permission Needed'),
-            content: Text(
-              'This app needs location access to function properly',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  logger.d('called the request again');
-                  Navigator.pop(context);
-                  context.read<PermissionsBloc>().add(
-                    RequestLocationPermissionEvent(),
-                  );
-                },
-                child: Text('Request Again'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  void _showPermanentDenialDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Permission Required'),
-            content: const Text(
-              'You permanently denied location access. '
-              'Please enable it in app settings to continue.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  // Close dialog first
-                  Navigator.pop(context);
-
-                  // Open device settings
-                  final bool opened = await openAppSettings();
-
-                  // Optional: Check if settings were opened
-                  if (!opened) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to open settings')),
-                    );
-                  }
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          ),
     );
   }
 }

@@ -96,8 +96,27 @@ class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
-      appBar: AppBar(title: Text("Explore")),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Container(
+              height: 45,
+              width: 45,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage('assets/logo/mlock_logo.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text('Explore', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
       body: MultiBlocListener(
         listeners: [
           // Permission listener
@@ -244,7 +263,7 @@ class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
       radius: radiusMeters,
       strokeWidth: 2,
       strokeColor: Colors.blue,
-      fillColor: Colors.blue.withOpacity(0.15),
+      fillColor: Colors.blue.withAlpha(38),
     );
 
     setState(() {
@@ -363,7 +382,6 @@ class _LockerStationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
 
     return Card(
@@ -432,7 +450,7 @@ class _LockerStationCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.9),
+                      color: statusColor.withAlpha(230),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(

@@ -26,16 +26,24 @@ class StationDetailBloc extends Bloc<StationDetailEvent, StationDetailState> {
     try {
       emit(StationDetailState.loading());
 
-      final station = await _stationDetailRepo.getParticularStation(
+      final data = await _stationDetailRepo.getParticularStation(
         stationId: event.lockerId,
       );
 
       // Check if station is saved
-      final isSaved = await _stationDetailRepo.isStationSavedRepo(station.id);
+      final isSaved = await _stationDetailRepo.isStationSavedRepo(
+        data['station'].id,
+      );
 
       logger.d('Station loaded - Saved status: $isSaved');
 
-      emit(StationDetailState.loaded(station, isSaved: isSaved));
+      emit(
+        StationDetailState.loaded(
+          data['station'],
+          isSaved: isSaved,
+          hasActiveBooking: data['hasActiveBooking'],
+        ),
+      );
     } catch (e) {
       logger.e('StationDetailBloc LoadStationEvent method: $e');
       StationDetailState.error(e.toString());
@@ -50,7 +58,6 @@ class StationDetailBloc extends Bloc<StationDetailEvent, StationDetailState> {
       if (state.status != StationDetailStatus.loaded || state.station == null)
         return null;
 
-      final currentStation = state.station;
       final newSavedStatus = !state.isSaved;
 
       // Update local state immediately for better UX

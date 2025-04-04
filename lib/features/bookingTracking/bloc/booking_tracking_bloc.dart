@@ -141,7 +141,7 @@ class BookingTrackingBloc
         'method': {
           'upi': true,
           'netbanking': true,
-          'card': false,
+          'card': true,
           'wallet': true,
           'emi': true,
         },

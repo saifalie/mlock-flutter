@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                  colors: [primaryColor, primaryColor.withAlpha(204)],
                 ),
               ),
               child: const Center(
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                colors: [primaryColor, primaryColor.withAlpha(204)],
               ),
             ),
             child: SafeArea(
@@ -112,67 +112,9 @@ class _LoginPageState extends State<LoginPage> {
           builder: (context, value, child) {
             return Transform.scale(scale: value, child: child);
           },
-          child: Container(
-            width: isSmallScreen ? 130 : 160,
-            height: isSmallScreen ? 130 : 160,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 30,
-                  spreadRadius: 2,
-                  offset: const Offset(0, 10),
-                ),
-                BoxShadow(
-                  color: accentColor.withOpacity(0.2),
-                  blurRadius: 40,
-                  spreadRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // The "M" part
-                Text(
-                  "M",
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontSize: isSmallScreen ? 80 : 100,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                // The "LOCK" part
-                Positioned(
-                  right: 8,
-                  bottom: isSmallScreen ? 22 : 30,
-                  child: Text(
-                    "LOCK",
-                    style: TextStyle(
-                      color: secondaryColor,
-                      fontSize: isSmallScreen ? 24 : 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                // Decorative element
-                Positioned(
-                  top: 15,
-                  right: 15,
-                  child: Container(
-                    width: isSmallScreen ? 12 : 15,
-                    height: isSmallScreen ? 12 : 15,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          child: SizedBox(
+            height: 120,
+            child: Image.asset('assets/logo/mlock_logo.png', fit: BoxFit.cover),
           ),
         ),
         const SizedBox(height: 24),
@@ -207,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withAlpha(38),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -254,13 +196,13 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.07),
+              color: Colors.black.withAlpha(18),
               blurRadius: 40,
               spreadRadius: 0,
               offset: const Offset(0, 10),
             ),
             BoxShadow(
-              color: accentColor.withOpacity(0.05),
+              color: accentColor.withAlpha(13),
               blurRadius: 60,
               spreadRadius: 10,
               offset: const Offset(0, 15),
@@ -276,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.1),
+                    color: accentColor.withAlpha(26),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(Icons.lock_outline, color: accentColor, size: 22),
@@ -298,7 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                         'Sign in to access your secure lockers',
                         style: TextStyle(
                           fontSize: isSmallScreen ? 13 : 15,
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withAlpha(153),
                         ),
                       ),
                     ],
@@ -310,10 +252,10 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface.withOpacity(0.7),
+                color: theme.colorScheme.surface.withAlpha(179),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: theme.colorScheme.onSurface.withOpacity(0.08),
+                  color: theme.colorScheme.onSurface.withAlpha(20),
                   width: 1,
                 ),
               ),
@@ -326,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withAlpha(13),
                           blurRadius: 10,
                           spreadRadius: 0,
                         ),
@@ -344,7 +286,7 @@ class _LoginPageState extends State<LoginPage> {
                       'Your data is secured with end-to-end encryption',
                       style: TextStyle(
                         fontSize: isSmallScreen ? 13 : 14,
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        color: theme.colorScheme.onSurface.withAlpha(179),
                       ),
                     ),
                   ),
@@ -412,7 +354,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text(
                   'Need help?',
                   style: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withAlpha(153),
                     fontSize: 14,
                   ),
                 ),

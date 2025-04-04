@@ -39,13 +39,14 @@ import 'package:mlock_flutter/services/cache/cache_service.dart';
 import 'package:mlock_flutter/services/cache/user_cache_service.dart';
 import 'package:mlock_flutter/services/notifications/firebase_notification.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   //Initialize dotenv
   await dotenv.load(fileName: '.env');
 
-  //Intialize Firebase
+  //Intialize Firebase  
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final firebaseAuth = FirebaseAuth.instance;
   final googleSignIn = GoogleSignIn();

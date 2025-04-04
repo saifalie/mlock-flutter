@@ -55,258 +55,305 @@ class _LockerStationPageState extends State<LockerStationPage> {
   }
 
   Widget _buildStationDetails(LockerStation detailedStation) {
-    return CustomScrollView(
-      slivers: [
-        // Custom app bar with image carousel
-        SliverAppBar(
-          expandedHeight: 300,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Stack(
-              children: [
-                // Carousel slider
-                _buildImageCarousel(detailedStation.images),
+    return Stack(
+      children: [
+        CustomScrollView(
+          slivers: [
+            // Custom app bar with image carousel
+            SliverAppBar(
+              expandedHeight: 300,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  children: [
+                    // Carousel slider
+                    _buildImageCarousel(detailedStation.images),
 
-                // Gradient overlay for better text visibility
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.6),
-                        ],
-                        stops: const [0.6, 1.0],
+                    // Gradient overlay for better text visibility
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withAlpha(153),
+                            ],
+                            stops: const [0.6, 1.0],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
 
-                // Station name at bottom
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: 16,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          detailedStation.stationName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black54,
-                                offset: Offset(1, 1),
-                                blurRadius: 2,
+                    // Station name at bottom
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              detailedStation.stationName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black54,
+                                    offset: Offset(1, 1),
+                                    blurRadius: 2,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Favorite/Save button
+                          BlocBuilder<StationDetailBloc, StationDetailState>(
+                            builder: (context, state) {
+                              if (state.status != StationDetailStatus.loaded) {
+                                return const SizedBox.shrink();
+                              }
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withAlpha(51),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  color:
+                                      state.isSaved
+                                          ? Theme.of(context).colorScheme.error
+                                          : Colors.white,
+                                  onPressed: () {
+                                    context.read<StationDetailBloc>().add(
+                                      ToggleSaveStationEvent(
+                                        widget.lockerStation.id,
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(
+                                    state.isSaved
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    size: 28,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Content
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Status and Rating
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(
+                              detailedStation.status,
+                            ).withAlpha(26),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: _getStatusColor(detailedStation.status),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _getStatusIcon(detailedStation.status),
+                                size: 16,
+                                color: _getStatusColor(detailedStation.status),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                detailedStation.status,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: _getStatusColor(
+                                    detailedStation.status,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-
-                      // Favorite/Save button
-                      BlocBuilder<StationDetailBloc, StationDetailState>(
-                        builder: (context, state) {
-                          if (state.status != StationDetailStatus.loaded) {
-                            return const SizedBox.shrink();
-                          }
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: IconButton(
-                              color:
-                                  state.isSaved
-                                      ? Theme.of(context).colorScheme.error
-                                      : Colors.white,
-                              onPressed: () {
-                                context.read<StationDetailBloc>().add(
-                                  ToggleSaveStationEvent(
-                                    widget.lockerStation.id,
-                                  ),
-                                );
-                              },
-                              icon: Icon(
-                                state.isSaved
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                size: 28,
+                        const SizedBox(width: 12),
+                        if (detailedStation.averageRating != null)
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 18,
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Content
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Status and Rating
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(
-                          detailedStation.status,
-                        ).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: _getStatusColor(detailedStation.status),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _getStatusIcon(detailedStation.status),
-                            size: 16,
-                            color: _getStatusColor(detailedStation.status),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            detailedStation.status,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: _getStatusColor(detailedStation.status),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    if (detailedStation.averageRating != null)
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 18),
-                          const SizedBox(width: 4),
-                          Text(
-                            detailedStation.averageRating!.toStringAsFixed(1),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                // Address with icon
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 24,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        detailedStation.address,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Opening Hours Section with Card
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.access_time,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Opening Hours',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                              const SizedBox(width: 4),
+                              Text(
+                                detailedStation.averageRating!.toStringAsFixed(
+                                  1,
+                                ),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        _buildOpeningHours(detailedStation.openingHours),
+                            ],
+                          ),
                       ],
                     ),
-                  ),
-                ),
 
-                const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
-                // Reviews Section
-                const Text(
-                  'Reviews & Ratings',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildReviewsSection(detailedStation),
-
-                const SizedBox(height: 24),
-
-                // Book button
-                ElevatedButton(
-                  onPressed: () {
-                    _bottomSheetContainer(context, detailedStation);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    minimumSize: const Size.fromHeight(56),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    // Address with icon
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            detailedStation.address,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Book a Locker',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
 
-                const SizedBox(height: 16),
-              ],
+                    const SizedBox(height: 24),
+
+                    // Opening Hours Section with Card
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.access_time,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Opening Hours',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            _buildOpeningHours(detailedStation.openingHours),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Reviews Section
+                    const Text(
+                      'Reviews & Ratings',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildReviewsSection(detailedStation),
+
+                    const SizedBox(height: 24),
+
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        Positioned(
+          bottom: 30,
+          left: 16,
+          right: 16,
+          child:
+          // Book button
+          ElevatedButton(
+            onPressed: () {
+              final hasActiveBooking =
+                  context.read<StationDetailBloc>().state.hasActiveBooking;
+              logger.d('hasActiveBooking: $hasActiveBooking');
+
+              if (hasActiveBooking) {
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: Text('Active Booking Found'),
+                        content: Text(
+                          'You already have an active booking. You can only have one booking at a time.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('OK'),
+                          ),
+                        ],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                );
+              } else {
+                _bottomSheetContainer(context, detailedStation);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              minimumSize: const Size.fromHeight(56),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
+            child: const Text(
+              'Book a Locker',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -362,7 +409,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withAlpha(51),
                     width: 1,
                   ),
                 ),
@@ -494,22 +541,23 @@ class _LockerStationPageState extends State<LockerStationPage> {
         const SizedBox(height: 16),
 
         // Review cards
-        ...visibleReviews.take(3).map((review) => _buildReviewCard(review)),
+        ...visibleReviews.map((review) => _buildReviewCard(review)),
+        // ...visibleReviews.take(3).map((review) => _buildReviewCard(review)),
 
         // Show more button if there are more than 3 reviews
-        if (visibleReviews.length > 3)
-          TextButton(
-            onPressed: () {
-              // Implement "View all reviews" functionality
-            },
-            child: Text(
-              'View all ${visibleReviews.length} reviews',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+        // if (visibleReviews.length > 3)
+        //   TextButton(
+        //     onPressed: () {
+        //       // Implement "View all reviews" functionality
+        //     },
+        //     child: Text(
+        //       'View all ${visibleReviews.length} reviews',
+        //       style: TextStyle(
+        //         color: Theme.of(context).colorScheme.primary,
+        //         fontWeight: FontWeight.bold,
+        //       ),
+        //     ),
+        //   ),
       ],
     );
   }
@@ -531,7 +579,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
                 CircleAvatar(
                   backgroundColor: Theme.of(
                     context,
-                  ).colorScheme.primary.withOpacity(0.1),
+                  ).colorScheme.primary.withAlpha(26),
                   child: Text(
                     'U', // First letter of User
                     style: TextStyle(
@@ -653,7 +701,7 @@ class _LockerStationPageState extends State<LockerStationPage> {
                                 color:
                                     _currentImageIndex == entry.key
                                         ? Colors.white
-                                        : Colors.white.withOpacity(0.4),
+                                        : Colors.white.withAlpha(102),
                               ),
                             );
                           }).toList(),
@@ -671,7 +719,6 @@ class _LockerStationPageState extends State<LockerStationPage> {
     String? selectedLockerID;
     String selectedDuration = '1 hr'; // Default duration
     int selectedPrice = 0;
-    // Locker? selectedLocker;
     bool bottomSheetClosedForPayment = false;
 
     // Available duration options
@@ -688,8 +735,6 @@ class _LockerStationPageState extends State<LockerStationPage> {
     // Group lockers by size
     final Map<String, List<Locker>> lockersBySize = {};
     for (var locker in station.lockers) {
-      if (locker.status != "AVAILABLE") continue;
-
       if (!lockersBySize.containsKey(locker.size)) {
         lockersBySize[locker.size] = [];
       }
@@ -702,8 +747,8 @@ class _LockerStationPageState extends State<LockerStationPage> {
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
       ),
       context: context,
@@ -721,27 +766,9 @@ class _LockerStationPageState extends State<LockerStationPage> {
               logger.d('Booking confirmed handler triggered');
 
               // Display the success UI in the bottom sheet first
-
-              // Then after a delay, show the success dialog and navigate
               Future.delayed(const Duration(seconds: 3), () {
-                // First close the bottom sheet
-                // if (Navigator.canPop(context)) {
-                //   Navigator.pop(context);
-                // }
-
-                // Wait a bit for the bottom sheet to close
                 Future.delayed(const Duration(milliseconds: 300), () {
-                  // Then show the success dialog
-                  // MyDialog.showSuccessfullPaymentDialog(context, state);
-
-                  // Reset the booking state
                   context.read<BookingBloc>().add(CompleteBookingEvent());
-
-                  // Show success snackbar
-
-                  // MySnackbar.showSuccessSnackbar(context, 'Booking Confirmed');
-
-                  // Optionally navigate to a tracking page
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                       builder: (_) => MainWrapper(initialPage: 0),
@@ -768,14 +795,20 @@ class _LockerStationPageState extends State<LockerStationPage> {
             if (state.status == BookingStatus.paymentProcessing) {
               return Container(
                 height: 300,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 child: const Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Processing payment....'),
+                      SizedBox(height: 20),
+                      Text(
+                        'Processing payment...',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -783,14 +816,20 @@ class _LockerStationPageState extends State<LockerStationPage> {
             } else if (state.status == BookingStatus.paymentPending) {
               return Container(
                 height: 300,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 child: const Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Payment pending....'),
+                      SizedBox(height: 20),
+                      Text(
+                        'Payment pending...',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -798,11 +837,33 @@ class _LockerStationPageState extends State<LockerStationPage> {
             } else if (state.status == BookingStatus.bookingConfirmed) {
               return Container(
                 height: 300,
-                padding: const EdgeInsets.all(16),
-                child: const Center(
+                padding: const EdgeInsets.all(24),
+                child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [SizedBox(height: 16), Text('Booking Confirmed')],
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withAlpha(26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 64,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Booking Confirmed!',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -824,6 +885,8 @@ class _LockerStationPageState extends State<LockerStationPage> {
                   double hours = 0.0;
                   if (selectedDuration == '30 min') {
                     hours = 0.5;
+                  } else if (selectedDuration == '1 min') {
+                    hours = 1 / 60; // 1 minute as fraction of hour
                   } else {
                     final durationParts = selectedDuration.split(' ');
                     if (durationParts[0].contains(':')) {
@@ -840,38 +903,134 @@ class _LockerStationPageState extends State<LockerStationPage> {
                 }
 
                 return Container(
-                  padding: const EdgeInsets.all(16),
-                  height: MediaQuery.of(context).size.height * 0.8,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
+                  ),
+                  height: MediaQuery.of(context).size.height * 0.85,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Book a Locker',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Book a Locker',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                station.stationName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
                           ),
                           IconButton(
-                            icon: const Icon(Icons.close),
+                            icon: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withAlpha(26),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close),
+                            ),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ],
                       ),
-                      Text(
-                        station.stationName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+
+                      const SizedBox(height: 24),
+
+                      // Duration selection
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withAlpha(13),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Select Duration',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(13),
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  isExpanded: true,
+                                  value: selectedDuration,
+                                  elevation: 0,
+                                  icon: const Icon(Icons.keyboard_arrow_down),
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      selectedDuration = newValue!;
+                                      selectedPrice = calculatePrice();
+                                    });
+                                  },
+                                  items:
+                                      durationOptions.map((duration) {
+                                        return DropdownMenuItem(
+                                          value: duration,
+                                          child: Text(duration),
+                                        );
+                                      }).toList(),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
 
-                      // Locker size sections
+                      const SizedBox(height: 20),
+
+                      // Locker selector
+                      const Text(
+                        'Select a Locker',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
                       Expanded(
                         child: SingleChildScrollView(
                           child: Column(
@@ -880,212 +1039,354 @@ class _LockerStationPageState extends State<LockerStationPage> {
                                 lockersBySize.entries.map((entry) {
                                   final size = entry.key;
                                   final sizeLockers = entry.value;
+                                  final availableLockers =
+                                      sizeLockers
+                                          .where(
+                                            (locker) =>
+                                                locker.status == "AVAILABLE",
+                                          )
+                                          .toList();
 
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0,
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 20.0,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Size header with price
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                            horizontal: 16,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary.withAlpha(26),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                size == 'SMALL'
+                                                    ? Icons.backpack
+                                                    : (size == 'MEDIUM'
+                                                        ? Icons.work
+                                                        : Icons.luggage),
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '$size Size',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          Theme.of(
+                                                            context,
+                                                          ).colorScheme.primary,
+                                                    ),
+                                                  ),
+                                                  if (availableLockers
+                                                      .isNotEmpty)
+                                                    Text(
+                                                      '₹${availableLockers.first.rentalPrice.toStringAsFixed(2)}/min',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        child: Text(
-                                          '$size Size - ${sizeLockers.length} Available',
+
+                                        const SizedBox(height: 12),
+
+                                        // Available lockers count
+                                        Text(
+                                          '${availableLockers.length} Available',
                                           style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                      ),
-                                      Text(
-                                        'Price: ₹${sizeLockers.first.rentalPrice.toStringAsFixed(2)} per min',
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
 
-                                      // List of lockers for this size
-                                      ...sizeLockers.map(
-                                        (locker) => Card(
-                                          margin: const EdgeInsets.only(
-                                            bottom: 8,
-                                          ),
-                                          color:
-                                              selectedLockerID == locker.id
-                                                  ? Theme.of(context)
-                                                      .colorScheme
-                                                      .primary
-                                                      .withOpacity(0.2)
-                                                  : Theme.of(context).cardColor,
-                                          child: ListTile(
-                                            title: Text(
-                                              'Locker #${locker.lockerNumber}',
-                                              style: TextStyle(
-                                                color:
-                                                    selectedLockerID ==
-                                                            locker.id
-                                                        ? Theme.of(
-                                                          context,
-                                                        ).colorScheme.onPrimary
-                                                        : Theme.of(context)
-                                                            .textTheme
-                                                            .bodyLarge
-                                                            ?.color,
-                                              ),
-                                            ),
-                                            subtitle: Text(
-                                              '${locker.size} - ₹${locker.rentalPrice.toStringAsFixed(2)}/min',
-                                              style: TextStyle(
-                                                color:
-                                                    selectedLockerID ==
-                                                            locker.id
-                                                        ? Colors.white
-                                                        : Colors.black,
-                                              ),
-                                            ),
-                                            trailing: Radio<String>(
-                                              value: locker.id,
-                                              groupValue: selectedLockerID,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  selectedLockerID = value;
-                                                  selectedPrice =
-                                                      calculatePrice();
-                                                });
-                                              },
-                                            ),
-                                            onTap: () {
-                                              setState(() {
-                                                selectedLockerID = locker.id;
-                                                selectedPrice =
-                                                    calculatePrice();
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
+                                        const SizedBox(height: 12),
 
-                                      const SizedBox(height: 16),
-                                    ],
+                                        // Visual locker grid
+                                        Wrap(
+                                          spacing: 10,
+                                          runSpacing: 10,
+                                          children:
+                                              sizeLockers.map((locker) {
+                                                final bool isAvailable =
+                                                    locker.status ==
+                                                    "AVAILABLE";
+                                                final bool isSelected =
+                                                    selectedLockerID ==
+                                                    locker.id;
+
+                                                return GestureDetector(
+                                                  onTap:
+                                                      isAvailable
+                                                          ? () {
+                                                            setState(() {
+                                                              selectedLockerID =
+                                                                  locker.id;
+                                                              selectedPrice =
+                                                                  calculatePrice();
+                                                            });
+                                                          }
+                                                          : null,
+                                                  child: Container(
+                                                    width: 60,
+                                                    height: 60,
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          isSelected
+                                                              ? Theme.of(
+                                                                    context,
+                                                                  )
+                                                                  .colorScheme
+                                                                  .primary
+                                                              : (isAvailable
+                                                                  ? Colors.white
+                                                                  : Colors.red
+                                                                      .withAlpha(
+                                                                        51,
+                                                                      )),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                      border: Border.all(
+                                                        color:
+                                                            isSelected
+                                                                ? Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .primary
+                                                                : (isAvailable
+                                                                    ? Colors
+                                                                        .grey
+                                                                        .shade300
+                                                                    : Colors.red
+                                                                        .withAlpha(
+                                                                          77,
+                                                                        )),
+                                                        width:
+                                                            isSelected ? 2 : 1,
+                                                      ),
+                                                      boxShadow:
+                                                          isSelected ||
+                                                                  !isAvailable
+                                                              ? null
+                                                              : [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withAlpha(
+                                                                        13,
+                                                                      ),
+                                                                  blurRadius: 3,
+                                                                  offset:
+                                                                      const Offset(
+                                                                        0,
+                                                                        1,
+                                                                      ),
+                                                                ),
+                                                              ],
+                                                    ),
+                                                    child: Center(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Icon(
+                                                            isAvailable
+                                                                ? Icons
+                                                                    .lock_open
+                                                                : Icons.lock,
+                                                            size: 20,
+                                                            color:
+                                                                isSelected
+                                                                    ? Colors
+                                                                        .white
+                                                                    : (isAvailable
+                                                                        ? Colors
+                                                                            .grey
+                                                                        : Colors
+                                                                            .red
+                                                                            .withAlpha(
+                                                                              179,
+                                                                            )),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 4,
+                                                          ),
+                                                          Text(
+                                                            '#${locker.lockerNumber}',
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  isSelected
+                                                                      ? Colors
+                                                                          .white
+                                                                      : (isAvailable
+                                                                          ? Colors
+                                                                              .black
+                                                                          : Colors.red.withAlpha(
+                                                                            179,
+                                                                          )),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 }).toList(),
                           ),
                         ),
                       ),
 
-                      // Duration selection
-                      const Text(
-                        'Select Duration:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+                      // Bottom price and booking section
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(13),
+                              blurRadius: 10,
+                              offset: const Offset(0, -5),
+                            ),
+                          ],
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            value: selectedDuration,
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedDuration = newValue!;
-                                selectedPrice = calculatePrice();
-                              });
-                            },
-                            items:
-                                durationOptions.map((duration) {
-                                  return DropdownMenuItem(
-                                    value: duration,
-                                    child: Text(duration),
-                                  );
-                                }).toList(),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Total price
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           children: [
-                            const Text(
-                              'Total Price:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                            // Price container
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withAlpha(13),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Total Price:',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                  Text(
+                                    '₹${selectedPrice}',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Text(
-                              '₹${selectedPrice}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+
+                            const SizedBox(height: 16),
+
+                            // Book button
+                            ElevatedButton(
+                              onPressed:
+                                  selectedLockerID == null ||
+                                          context
+                                              .read<StationDetailBloc>()
+                                              .state
+                                              .hasActiveBooking
+                                      ? null
+                                      : () {
+                                        bottomSheetClosedForPayment = true;
+
+                                        final userName = "John Doe";
+                                        final userEmail = "john@example.com";
+                                        final userPhone = "1234567890";
+                                        logger.d('amount: $selectedPrice');
+                                        logger.d(
+                                          'selected duration $selectedDuration',
+                                        );
+
+                                        //Initiate booking
+                                        context.read<BookingBloc>().add(
+                                          InitiateBookingEvent(
+                                            lockerId: selectedLockerID!,
+                                            lockerStationId:
+                                                widget.lockerStation.id,
+                                            duration: selectedDuration,
+                                            amount: selectedPrice,
+                                            rentalPrice: 77,
+                                            userEmail: userEmail,
+                                            userName: userName,
+                                            userPhone: userPhone,
+                                          ),
+                                        );
+                                      },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                                disabledBackgroundColor: Colors.grey.shade300,
+                                disabledForegroundColor: Colors.grey.shade600,
+                                minimumSize: const Size.fromHeight(54),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Proceed to Payment',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Book button
-                      ElevatedButton(
-                        onPressed:
-                            selectedLockerID == null
-                                ? null
-                                : () {
-                                  bottomSheetClosedForPayment = true;
-                                  // Navigator.pop(context);
-
-                                  //get user info from user bloc if available
-                                  // final userState =
-                                  //     context.read<UserBloc>().state;
-                                  //     final userName = userState is U
-                                  final userName = "John Doe";
-                                  final userEmail = "john@example.com";
-                                  final userPhone = "1234567890";
-                                  logger.d('amount: $selectedPrice');
-                                  logger.d(
-                                    'selected duration $selectedDuration',
-                                  );
-
-                                  //Initiate booking
-                                  context.read<BookingBloc>().add(
-                                    InitiateBookingEvent(
-                                      lockerId: selectedLockerID!,
-                                      lockerStationId: widget.lockerStation.id,
-                                      duration: selectedDuration,
-                                      amount: selectedPrice,
-                                      rentalPrice: 0.3,
-                                      userEmail: userEmail,
-                                      userName: userName,
-                                      userPhone: userPhone,
-                                    ),
-                                  );
-                                },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onPrimary,
-                          minimumSize: const Size.fromHeight(50),
-                        ),
-                        child: const Text('Proceed to Payment'),
                       ),
                     ],
                   ),
@@ -1112,95 +1413,4 @@ class _LockerStationPageState extends State<LockerStationPage> {
       }
     });
   }
-
-  // Widget _buildImageCarousel(List<LockerImage> images) {
-  //   if (images.isEmpty) {
-  //     return Container(
-  //       height: 200,
-  //       decoration: BoxDecoration(
-  //         color: Colors.grey[300],
-  //         borderRadius: BorderRadius.circular(8),
-  //       ),
-  //       child: const Center(child: Text('No images available')),
-  //     );
-  //   }
-
-  //   return Column(
-  //     children: [
-  //       CarouselSlider(
-  //         options: CarouselOptions(
-  //           height: 250,
-  //           autoPlay: true,
-  //           enlargeCenterPage: true,
-  //           aspectRatio: 16 / 9,
-  //           viewportFraction: 0.9,
-  //           autoPlayInterval: const Duration(seconds: 5),
-  //           onPageChanged: (index, reason) {
-  //             setState(() => _currentImageIndex = index);
-  //           },
-  //         ),
-  //         items:
-  //             images.map((LockerImage image) {
-  //               return Container(
-  //                 width: MediaQuery.of(context).size.width,
-  //                 margin: const EdgeInsets.symmetric(horizontal: 5.0),
-  //                 decoration: BoxDecoration(
-  //                   borderRadius: BorderRadius.circular(8.0),
-  //                 ),
-  //                 child: CachedNetworkImage(
-  //                   imageUrl: image.url,
-  //                   fit: BoxFit.cover,
-  //                   placeholder:
-  //                       (context, url) => Center(
-  //                         child: LinearProgressIndicator(
-  //                           valueColor: AlwaysStoppedAnimation<Color>(
-  //                             Theme.of(context).primaryColor,
-  //                           ),
-  //                         ),
-  //                       ),
-  //                   errorWidget:
-  //                       (context, url, error) => Container(
-  //                         color: Colors.grey[200],
-  //                         child: const Column(
-  //                           mainAxisAlignment: MainAxisAlignment.center,
-  //                           children: [
-  //                             Icon(Icons.error, color: Colors.red),
-  //                             Text('Failed to load image'),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                   memCacheHeight: 400,
-  //                   memCacheWidth: 600,
-  //                   maxHeightDiskCache: 400,
-  //                 ),
-  //               );
-  //             }).toList(),
-  //       ),
-  //       const SizedBox(height: 8),
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children:
-  //             images.asMap().entries.map((entry) {
-  //               return Container(
-  //                 width: 8.0,
-  //                 height: 8.0,
-  //                 margin: const EdgeInsets.symmetric(
-  //                   vertical: 8.0,
-  //                   horizontal: 4.0,
-  //                 ),
-  //                 decoration: BoxDecoration(
-  //                   shape: BoxShape.circle,
-  //                   color:
-  //                       _currentImageIndex == entry.key
-  //                           ? Theme.of(context).colorScheme.primary
-  //                           : Theme.of(
-  //                             context,
-  //                           ).colorScheme.secondary.withOpacity(0.4),
-  //                 ),
-  //               );
-  //             }).toList(),
-  //       ),
-  //     ],
-  //   );
-  // }
 }

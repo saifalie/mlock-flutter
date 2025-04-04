@@ -17,7 +17,8 @@ class ApiClient {
   void _setupDio() {
     //Base configuration
     _dio.options = BaseOptions(
-      baseUrl: 'http://192.168.29.156:7000/api',
+      baseUrl: 'https://mlockserver.onrender.com/api',
+      // baseUrl: 'http://192.168.29.156:7000/api',
       // baseUrl: 'http://localhost:7000/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
@@ -51,7 +52,7 @@ class ApiClient {
       },
 
       onError: (error, handler) async {
-        logger.e('AuthInterceptor error: ${error}');
+        logger.e('AuthInterceptor error: $error');
 
         // Handle only 401 Unauthorized errors
         if (error.response?.statusCode == 401) {
@@ -71,7 +72,8 @@ class ApiClient {
 
             // Call refresh token endpoint
             final response = await refreshDio.post(
-              'http://192.168.10.109:7000/api/auth/refresh-token',
+              'https://mlockserver.onrender.com/api/auth/refresh-token',
+              // 'http://192.168.10.109:7000/api/auth/refresh-token',
               data: {'refreshToken': refreshToken},
             );
 

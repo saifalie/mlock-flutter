@@ -179,7 +179,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         return;
       }
       final userData = await _authRepository.getUserData(true);
-      logger.d('userdata authbloc $userData');
+      logger.d('userdata authbloc ${userData['currentLocker']}');
 
       emit(AuthState.authenticated(UserModel.fromJson(userData), accessToken));
 

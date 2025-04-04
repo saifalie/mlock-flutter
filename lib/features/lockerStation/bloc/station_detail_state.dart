@@ -8,12 +8,14 @@ class StationDetailState {
   final String? error;
   final StationDetailStatus status;
   final bool isSaved;
+  final bool hasActiveBooking;
 
   const StationDetailState({
     required this.status,
     this.error,
     this.station,
     this.isSaved = false,
+    this.hasActiveBooking = false,
   });
 
   StationDetailState copyWith({
@@ -21,12 +23,14 @@ class StationDetailState {
     LockerStation? station,
     String? error,
     bool? isSaved,
+    bool? hasActiveBooking,
   }) {
     return StationDetailState(
       status: status ?? this.status,
       station: station ?? this.station,
       error: error ?? this.error,
       isSaved: isSaved ?? this.isSaved,
+      hasActiveBooking: hasActiveBooking ?? this.hasActiveBooking,
     );
   }
 
@@ -39,10 +43,12 @@ class StationDetailState {
   factory StationDetailState.loaded(
     LockerStation station, {
     bool isSaved = false,
+    bool hasActiveBooking = false,
   }) => StationDetailState(
     status: StationDetailStatus.loaded,
     station: station,
     isSaved: isSaved,
+    hasActiveBooking: hasActiveBooking,
   );
 
   factory StationDetailState.error(String error) =>

@@ -141,7 +141,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         'method': {
           'upi': true,
           'netbanking': true,
-          'card': false,
+          'card': true,
           'wallet': true,
           'emi': true,
         },

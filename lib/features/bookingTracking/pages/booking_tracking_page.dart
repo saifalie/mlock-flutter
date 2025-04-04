@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,11 +6,11 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mlock_flutter/core/permission/bloc/permissions_bloc.dart';
+import 'package:mlock_flutter/core/theme/app_theme.dart';
 import 'package:mlock_flutter/core/utils/logger.dart';
 import 'package:mlock_flutter/core/utils/my_dialog.dart';
 import 'package:mlock_flutter/core/utils/my_snackbar.dart';
 import 'package:mlock_flutter/data/location/bloc/location_bloc.dart';
-import 'package:mlock_flutter/data/user/bloc/user_bloc.dart';
 import 'package:mlock_flutter/features/bookingTracking/bloc/booking_tracking_bloc.dart';
 import 'package:mlock_flutter/features/bookingTracking/models/booking_model.dart';
 import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_m.dart';
@@ -252,10 +251,10 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
         _fitBoundsOnMap();
       } else {
         // Handle no points case (e.g., log or show message)
-        print("No route points returned from API: ${result.errorMessage}");
+        logger.d("No route points returned from API: ${result.errorMessage}");
       }
     } catch (e) {
-      print("Error drawing route: $e");
+      logger.e("Error drawing route: $e");
     }
   }
 
@@ -294,7 +293,7 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
         CameraUpdate.newLatLngBounds(bounds, padding),
       );
     } catch (e) {
-      print("Error fitting bounds: $e");
+      logger.e("Error fitting bounds: $e");
     }
   }
 
@@ -302,7 +301,28 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Booking Tracking')),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Container(
+              height: 45,
+              width: 45,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage('assets/logo/mlock_logo.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Booking Tracking',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
       body: MultiBlocListener(
         listeners: [
           // Permission listener
@@ -363,49 +383,6 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
                         ),
                   ),
                 );
-
-                // Show success message
-                // showDialog(
-                //   context: context,
-                //   builder:
-                //       (context) => AlertDialog(
-                //         title: const Text('Checkout Successful'),
-                //         content: Column(
-                //           mainAxisSize: MainAxisSize.min,
-                //           crossAxisAlignment: CrossAxisAlignment.start,
-                //           children: [
-                //             const Text(
-                //               'Your locker has been successfully checked out.',
-                //             ),
-                //             if (state.extraTimePayment != null) ...[
-                //               const SizedBox(height: 8),
-                //               Text(
-                //                 'Extra time charge: \$${state.extraTimePayment!.toStringAsFixed(2)}',
-                //                 style: const TextStyle(
-                //                   fontWeight: FontWeight.bold,
-                //                 ),
-                //               ),
-                //             ],
-                //           ],
-                //         ),
-                //         actions: [
-                //           ElevatedButton(
-                //             onPressed: () {
-                //               Navigator.of(context).pushReplacement(
-                //                 MaterialPageRoute(
-                //                   builder:
-                //                       (context) => RatingPage(
-                //                         lockerStationId:
-                //                             state.booking!.lockerStation!.id,
-                //                       ),
-                //                 ),
-                //               );
-                //             },
-                //             child: const Text('OK'),
-                //           ),
-                //         ],
-                //       ),
-                // );
               } else if (state.status ==
                   BookingTrackingStatus.checkoutProcessing) {
                 Center(child: CircularProgressIndicator());
@@ -429,17 +406,18 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
             final screenHeight = constraints.maxHeight;
             final screenWidth = constraints.maxWidth;
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                // Wrap the map section in a BlocBuilder to conditionally show it
-                BlocBuilder<BookingTrackingBloc, BookingTrackingState>(
-                  builder: (context, state) {
-                    if (state.status == BookingTrackingStatus.loaded &&
-                        state.booking != null &&
-                        state.booking!.lockerStation != null) {
-                      // Only show map when booking is found
-                      return Expanded(
+            return BlocBuilder<BookingTrackingBloc, BookingTrackingState>(
+              builder: (context, state) {
+                if (state.status == BookingTrackingStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state.status == BookingTrackingStatus.loaded &&
+                    state.booking != null) {
+                  // When booking is active, show map and countdown in Column layout
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // Map section
+                      Expanded(
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
@@ -500,46 +478,45 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
                             ],
                           ),
                         ),
-                      );
-                    } else {
-                      // If no booking found, return an empty container instead of the map
-                      return Expanded(child: Container());
-                    }
-                  },
-                ),
+                      ),
 
-                // Keep the original booking details section
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.02,
-                    vertical: screenHeight * 0.02,
-                  ),
-                  child: BlocBuilder<BookingTrackingBloc, BookingTrackingState>(
-                    builder: (context, state) {
-                      if (state.status == BookingTrackingStatus.loading) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (state.status == BookingTrackingStatus.loaded &&
-                          state.booking != null) {
-                        return _buildCountdownSection(
+                      // Countdown section
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenWidth * 0.02,
+                          vertical: screenHeight * 0.02,
+                        ),
+                        child: _buildCountdownSection(
                           state.booking!,
                           screenWidth,
-                        );
-                      } else if (state.status ==
-                          BookingTrackingStatus.notFound) {
-                        return _buildNoBookingContent(screenWidth);
-                      } else if (state.status == BookingTrackingStatus.error) {
-                        return Center(
-                          child: Text(
-                            'Error: ${state.error ?? 'Unknown error'}',
-                          ),
-                        );
-                      } else {
-                        return _buildNoBookingContent(screenWidth);
-                      }
-                    },
-                  ),
-                ),
-              ],
+                        ),
+                      ),
+                    ],
+                  );
+                } else if (state.status == BookingTrackingStatus.notFound ||
+                    state.status == BookingTrackingStatus.error ||
+                    state.booking == null) {
+                  // When no booking found, center the no booking content
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.05,
+                      ),
+                      child: _buildNoBookingContent(screenWidth),
+                    ),
+                  );
+                } else {
+                  // Fallback
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.05,
+                      ),
+                      child: _buildNoBookingContent(screenWidth),
+                    ),
+                  );
+                }
+              },
             );
           },
         ),
@@ -547,56 +524,77 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
     );
   }
 
-  // Create a separate helper method for the no booking content
   Widget _buildNoBookingContent(double screenWidth) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.calendar_today_outlined,
-            size: 64,
-            color: Colors.grey,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'No Active Booking Found',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
+    return Center(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(32),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.darkGreen.withAlpha(20),
+                  blurRadius: 30,
+                  spreadRadius: 5,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.accentGold.withAlpha(179),
+                        AppTheme.accentGold.withAlpha(77),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.calendar_today_outlined,
+                    size: 50,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'No Active Booking', // Shortened text to fit on one line
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkGreen,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center, // Ensure text is centered
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'You don\'t have any active bookings at the moment.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                      height: 1.6,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'You don\'t have any active bookings at the moment.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(screenWidth * 0.6, 48),
-            ),
-            onPressed: () {
-              // Navigate to booking creation page
-            },
-            child: const Text('Create New Booking'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -612,7 +610,7 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(26),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -688,7 +686,10 @@ class _BookingTrackingPageState extends State<BookingTrackingPage>
             onPressed: () {
               _handleCheckout(booking);
             },
-            child: const Text('Checkout Now'),
+            child: const Text(
+              'Checkout Now',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

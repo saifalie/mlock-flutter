@@ -161,37 +161,3 @@ class AppTheme {
   );
 }
 
-// class AppTheme {
-//   // Light theme
-//   static ThemeData get lightTheme => FlexThemeData.light(
-//     scheme: FlexScheme.green,
-//     surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-//     blendLevel: 7,
-//     subThemesData: const FlexSubThemesData(
-//       blendOnLevel: 10,
-//       blendOnColors: false,
-//       useM2StyleDividerInM3: true,
-//       alignedDropdown: true,
-//       useInputDecoratorThemeInDialogs: true,
-//     ),
-//     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-//     useMaterial3: true,
-//     primary: const Color.fromRGBO(254, 206, 1, 1),
-//   );
-
-//   // Dark theme
-//   static ThemeData get darkTheme => FlexThemeData.dark(
-//     scheme: FlexScheme.blueM3,
-//     surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-//     blendLevel: 13,
-//     subThemesData: const FlexSubThemesData(
-//       blendOnLevel: 20,
-//       useM2StyleDividerInM3: true,
-//       alignedDropdown: true,
-//       useInputDecoratorThemeInDialogs: true,
-//     ),
-//     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-//     useMaterial3: true,
-//     primary: const Color.fromRGBO(254, 206, 1, 1),
-//   );
-// }

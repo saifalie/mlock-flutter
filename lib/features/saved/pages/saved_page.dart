@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mlock_flutter/core/utils/my_snackbar.dart';
-
 import 'package:mlock_flutter/features/lockerStation/pages/locker_station_page.dart';
 import 'package:mlock_flutter/features/map/models/lockerStation/locker_station_m.dart';
 import 'package:mlock_flutter/features/saved/bloc/saved_page_bloc.dart';
@@ -24,16 +23,28 @@ class _SavedPageState extends State<SavedPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.darkGreen.withOpacity(0.03),
+      // backgroundColor: AppTheme.darkGreen.withAlpha(200),
       appBar: AppBar(
-        title: Text(
-          'Saved Stations',
-          style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.5),
+        title: Row(
+          children: [
+            Container(
+              height: 45,
+              width: 45,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage('assets/logo/mlock_logo.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Saved Stations',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: AppTheme.darkGreen,
-        foregroundColor: Colors.white,
       ),
       body: BlocConsumer<SavedPageBloc, SavedPageState>(
         listener: (context, state) {
@@ -55,7 +66,7 @@ class _SavedPageState extends State<SavedPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withAlpha(13),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -91,7 +102,7 @@ class _SavedPageState extends State<SavedPage> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withAlpha(13),
                       blurRadius: 20,
                       spreadRadius: 2,
                       offset: const Offset(0, 5),
@@ -106,7 +117,7 @@ class _SavedPageState extends State<SavedPage> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withAlpha(26),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -168,95 +179,89 @@ class _SavedPageState extends State<SavedPage> {
             );
           }
 
-          // Empty state
+          // Empty state - UPDATED to support refresh and removed browse button
           if (state.stations == null || state.stations!.isEmpty) {
-            return Container(
-              padding: const EdgeInsets.all(32),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.darkGreen.withOpacity(0.08),
-                        blurRadius: 30,
-                        spreadRadius: 5,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
+            return RefreshIndicator(
+              color: AppTheme.lightGreen,
+              backgroundColor: Colors.white,
+              onRefresh: () async {
+                context.read<SavedPageBloc>().add(RefreshSavedStationEvent());
+              },
+              child: ListView(
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height - 150,
+                    padding: const EdgeInsets.all(32),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppTheme.accentGold.withOpacity(0.7),
-                              AppTheme.accentGold.withOpacity(0.3),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.bookmark_border_rounded,
-                          size: 50,
                           color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.darkGreen.withAlpha(20),
+                              blurRadius: 30,
+                              spreadRadius: 5,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppTheme.accentGold.withAlpha(179),
+                                    AppTheme.accentGold.withAlpha(77),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.bookmark_border_rounded,
+                                size: 50,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            Text(
+                              'No Saved Stations',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.darkGreen,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Text(
+                                'Save your favorite locker stations to access them quickly. Look for the heart icon when browsing stations.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                  height: 1.6,
+                                ),
+                              ),
+                            ),
+                            // Browse Stations button removed as requested
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      Text(
-                        'No Saved Stations',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.darkGreen,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'Save your favorite locker stations to access them quickly. Look for the heart icon when browsing stations.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black54,
-                            height: 1.6,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('Browse Stations'),
-                        style: TextButton.styleFrom(
-                          backgroundColor: AppTheme.darkGreen,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 40,
-                            vertical: 16,
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             );
           }
@@ -293,7 +298,7 @@ class _SavedPageState extends State<SavedPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.darkGreen.withOpacity(0.06),
+            color: AppTheme.darkGreen.withAlpha(15),
             blurRadius: 15,
             spreadRadius: 1,
             offset: const Offset(0, 8),
@@ -331,8 +336,8 @@ class _SavedPageState extends State<SavedPage> {
                             station.images.isEmpty
                                 ? LinearGradient(
                                   colors: [
-                                    AppTheme.darkGreen.withOpacity(0.7),
-                                    AppTheme.darkGreen.withOpacity(0.4),
+                                    AppTheme.darkGreen.withAlpha(179),
+                                    AppTheme.darkGreen.withAlpha(100),
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -350,7 +355,7 @@ class _SavedPageState extends State<SavedPage> {
                                       (_, __, ___) => Icon(
                                         Icons.image_not_supported_rounded,
                                         size: 50,
-                                        color: Colors.white.withOpacity(0.7),
+                                        color: Colors.white.withAlpha(200),
                                       ),
                                 ),
                               )
@@ -358,7 +363,7 @@ class _SavedPageState extends State<SavedPage> {
                                 child: Icon(
                                   Icons.lock_rounded,
                                   size: 50,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withAlpha(200),
                                 ),
                               ),
                     ),
@@ -397,7 +402,7 @@ class _SavedPageState extends State<SavedPage> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Colors.black.withOpacity(0.7),
+                              Colors.black.withAlpha(179),
                               Colors.transparent,
                             ],
                             begin: Alignment.bottomCenter,
@@ -434,7 +439,7 @@ class _SavedPageState extends State<SavedPage> {
 
                           // Favorite button (now on the image)
                           Material(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withAlpha(50),
                             borderRadius: BorderRadius.circular(30),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(30),
